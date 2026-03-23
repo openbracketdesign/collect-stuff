@@ -1,30 +1,34 @@
-import { Geist, Geist_Mono, Inter } from "next/font/google"
+import { type Metadata } from "next";
+import "./tailwind.css";
+import "./globals.css";
 
-import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { cn } from "@/lib/utils";
+// import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+// import { extractRouterConfig } from "uploadthing/server";
+// import { ourFileRouter } from "./api/uploadthing/core";
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'})
+import { ClerkProvider } from "@clerk/nextjs";
+import { inter, space_grotesk } from "./fonts";
 
-const fontMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-})
+export const metadata: Metadata = {
+  title: "Collectstuff",
+  description: "Collect, manage and share your stuff",
+  icons: [{ rel: "icon", url: "/favicon.ico" }],
+};
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={cn("antialiased", fontMono.variable, "font-sans", inter.variable)}
-    >
-      <body>
-        <ThemeProvider>{children}</ThemeProvider>
-      </body>
-    </html>
-  )
+    <ClerkProvider>
+      <html lang='en'>
+        {/* <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} /> */}
+
+        <body
+          className={`font-sans ${inter.className} ${space_grotesk.variable} flex min-h-svh flex-col`}
+        >
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
+  );
 }
