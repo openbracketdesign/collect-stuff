@@ -24,7 +24,7 @@ export function CollectionItemsList({
       </h2>
 
       <div className="xl:border-l xl:pl-4">
-        {collection.items?.map((item: any) => (
+        {collection.items?.map((item) => (
           <Link
             key={item.id}
             href={`/collections/${collection.id}/${item.id}`}

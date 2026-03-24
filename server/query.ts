@@ -132,6 +132,12 @@ export async function getItemWithCollectionAndItemsById(id: string) {
 
   return db.query.item.findFirst({
     where: eq(item.id, id),
-    with: { collection: { with: { items: true } } },
+    with: {
+      collection: {
+        with: {
+          items: { orderBy: [asc(item.name)] },
+        },
+      },
+    },
   });
 }

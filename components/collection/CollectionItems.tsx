@@ -57,7 +57,7 @@ export function CollectionItems({
   // grid
   return (
     <div className="grid grid-cols-[repeat(auto-fill,minmax(340px,1fr))] gap-4">
-      {collection.items?.map((item: any) => (
+      {collection.items?.map((item) => (
         <Link key={item.id} href={`/collections/${collection.id}/${item.id}`}>
           <Card className="group grid h-full grid-cols-[2fr_3fr] gap-4 p-4 hover:border-primary-300">
             <CardContent className="p-0">
