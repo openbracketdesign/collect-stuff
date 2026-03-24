@@ -28,7 +28,7 @@ export function PageTitleContent({
           className={cx(
             mobile
               ? "leading-8 md:hidden"
-              : "hidden leading-6 md:block md:text-left md:text-4xl lg:text-5xl",
+              : "hidden md:block md:text-left md:text-4xl lg:text-5xl",
             "text-4xl font-bold tracking-tight text-primary",
           )}
         >
@@ -45,7 +45,7 @@ export function PageTitleContent({
       </div>
 
       {!mobile && (
-        <div className='flex gap-2 md:hidden'>
+        <div className="flex gap-2 md:hidden">
           <Logo />
         </div>
       )}

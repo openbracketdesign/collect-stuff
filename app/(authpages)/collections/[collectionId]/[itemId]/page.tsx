@@ -5,7 +5,6 @@ import PageContent from "@/components/PageContent";
 import { auth } from "@clerk/nextjs/server";
 import { cx } from "class-variance-authority";
 import Image from "next/image";
-import { notFound } from "next/navigation";
 // import { getItemWithSiblings } from "~/server/query/item";
 
 export default async function ItemPage({
@@ -13,16 +12,6 @@ export default async function ItemPage({
 }: {
   params: Promise<{ collectionId: string; itemId: string }>;
 }) {
-  /** TEMP GUARD FOR DB INJECTION */
-
-  const { userId } = await auth();
-
-  if (userId !== "user_3At4IYWqSuiNtNy5T9g2kyGpLJP") {
-    notFound();
-  }
-
-  /** END TEMP GUARD */
-
   const { collectionId, itemId } = await params;
 
   const item: any = {
@@ -50,6 +39,8 @@ export default async function ItemPage({
       </>
     );
   }
+
+  const { userId } = await auth();
 
   return (
     <>

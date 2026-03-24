@@ -8,23 +8,12 @@ import { auth } from "@clerk/nextjs/server";
 import { cx } from "class-variance-authority";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 
 export default async function CollectionPage({
   params,
 }: {
   params: Promise<{ collectionId: string }>;
 }) {
-  /** TEMP GUARD FOR DB INJECTION */
-
-  const { userId } = await auth();
-
-  if (userId !== "user_3At4IYWqSuiNtNy5T9g2kyGpLJP") {
-    notFound();
-  }
-
-  /** END TEMP GUARD */
-
   const { collectionId } = await params;
   const collection = await getCollectionById(collectionId);
 

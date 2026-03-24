@@ -1,5 +1,3 @@
-import { cx } from "class-variance-authority";
-import { Fragment } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -7,6 +5,8 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { cx } from "class-variance-authority";
+import { Fragment } from "react";
 
 export default function Breadcrumbs({
   crumbs,
@@ -18,11 +18,11 @@ export default function Breadcrumbs({
   return (
     <Breadcrumb
       className={cx(
-        mobile ? "mb-3 md:hidden" : "mb-1 hidden md:block lg:mb-2",
+        mobile ? "mb-3 md:hidden" : "mb-3 hidden md:block lg:mb-2",
         "",
       )}
     >
-      <BreadcrumbList className='justify-start'>
+      <BreadcrumbList className="justify-start">
         {crumbs.map((crumb, index) => (
           <Fragment key={index}>
             <BreadcrumbItem>

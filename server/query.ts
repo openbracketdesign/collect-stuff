@@ -1,7 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 import { neon } from "@neondatabase/serverless";
 
-export async function getMyCollections() {
+export async function getMyCollections(
+  orderBy: "date" | "name" = "date",
+  orderDirection: "ASC" | "DESC" = "DESC",
+) {
   const { userId } = await auth();
 
   if (!userId) {
@@ -12,7 +15,7 @@ export async function getMyCollections() {
   const collections = await sql`
     SELECT * FROM collections
     WHERE "userId" = ${userId}
-    ORDER BY date DESC
+    ORDER BY ${orderBy === "date" ? sql`date` : sql`name`} ${orderDirection === "ASC" ? sql`ASC` : sql`DESC`}
   `;
   return collections;
 }
@@ -42,9 +45,9 @@ export async function getCollectionById(id: string) {
     throw new Error("No collection ID provided");
   }
 
-  const user = await auth();
+  const { userId } = await auth();
 
-  if (!user) {
+  if (!userId) {
     throw new Error("Not authenticated");
   }
 

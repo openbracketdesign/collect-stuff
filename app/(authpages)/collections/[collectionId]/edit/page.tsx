@@ -1,8 +1,6 @@
 import { PageTitle } from "@/components/header/PageTitle";
 import PageContent from "@/components/PageContent";
 import { getAuthedCollectionById } from "@/server/query";
-import { auth } from "@clerk/nextjs/server";
-import { notFound } from "next/navigation";
 import { EditCollectionForm } from "./EditCollectionForm";
 
 export default async function EditCollectionPage({
@@ -10,16 +8,6 @@ export default async function EditCollectionPage({
 }: {
   params: Promise<{ collectionId: string }>;
 }) {
-  /** TEMP GUARD FOR DB INJECTION */
-
-  const { userId } = await auth();
-
-  if (userId !== "user_3At4IYWqSuiNtNy5T9g2kyGpLJP") {
-    notFound();
-  }
-
-  /** END TEMP GUARD */
-
   const { collectionId } = await params;
   const collection = await getAuthedCollectionById(collectionId);
 
