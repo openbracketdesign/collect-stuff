@@ -5,15 +5,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getMyCollections } from "@/server/query";
 import Image from "next/image";
 import Link from "next/link";
-// import { getMyCollections } from "~/server/query/collection";
 import { CreateCollectionButton } from "../button/CreateCollectionButton";
 import { PageTitle } from "../header/PageTitle";
 import PageContent from "../PageContent";
 
 export const MyCollections = async () => {
-  const collections: any[] = []; // await getMyCollections();
+  const collections = await getMyCollections();
 
   if (!collections) {
     return (
@@ -44,7 +44,7 @@ export const MyCollections = async () => {
                 <CardContent className="p-0">
                   <div className="grid grid-cols-2 gap-2">
                     {[0, 1, 2, 3].map((i) =>
-                      collection.items[i] ? (
+                      collection.items?.length > 0 && collection.items[i] ? (
                         <Image
                           key={i}
                           src={collection.items[i].image}
@@ -70,8 +70,8 @@ export const MyCollections = async () => {
                   </CardTitle>
 
                   <CardDescription className="mt-2 line-clamp-3 text-primary empty:hidden">
-                    {collection.items.length}{" "}
-                    {`${collection.items.length === 1 ? "item" : "items"}`}
+                    {collection.items?.length}{" "}
+                    {`${collection.items?.length === 1 ? "item" : "items"}`}
                   </CardDescription>
 
                   <CardDescription className="mt-2 line-clamp-3 empty:hidden">

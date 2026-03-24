@@ -1,31 +1,35 @@
 "use client";
 
-import { ArrowLeftCircle, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { editCollection } from "@/server/actions";
+import { ArrowLeftCircle, Check, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import { Textarea } from "~/components/ui/textarea";
-import { editCollectionSubmit } from "~/server/actions";
-import { type Collection } from "~/types";
 
-export function EditCollectionForm({ collection }: { collection: Collection }) {
+// import { type Collection } from "@/types";
+
+export function EditCollectionForm({
+  collection,
+}: {
+  collection: Record<string, any>;
+}) {
   const router = useRouter();
 
-  const editCollection = async (formData: FormData) => {
+  const doEditCollection = async (formData: FormData) => {
     try {
-      await editCollectionSubmit(formData, collection.id);
+      await editCollection(formData, collection.id);
 
       // TODO: style toast
-      toast(`"${formData.get("name") as string}" updated successfully.`);
-      // toast(
-      //   <>
-      //     <CheckCircle />
-      //     {`"${formData.get("name") as string}" updated successfully.`}
-      //   </>,
-      // );
+      toast(
+        <div className="flex items-center gap-2">
+          <CheckCircle />
+          {`"${formData.get("name") as string}" updated successfully.`}
+        </div>,
+      );
 
       router.replace(`/collections/${collection.id}`);
     } catch (error) {
@@ -37,7 +41,7 @@ export function EditCollectionForm({ collection }: { collection: Collection }) {
 
   return (
     <form
-      action={editCollection}
+      action={doEditCollection}
       className="flex max-w-[100%] flex-col gap-4 md:max-w-[600px]"
     >
       <div className="mb-3 flex flex-col gap-4 sm:flex-row sm:gap-2">

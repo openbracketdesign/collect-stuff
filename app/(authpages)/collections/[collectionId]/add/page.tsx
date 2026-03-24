@@ -1,6 +1,8 @@
-import { PageTitle } from "~/app/_components/Header/PageTitle";
-import PageContent from "~/app/_components/PageContent";
-import { getCollection } from "~/server/query/collection";
+import { PageTitle } from "@/components/header/PageTitle";
+import PageContent from "@/components/PageContent";
+import { getAuthedCollectionById } from "@/server/query";
+import { auth } from "@clerk/nextjs/server";
+import { notFound } from "next/navigation";
 import { AddItemForm } from "./AddItemForm";
 
 export default async function AddItemPage({
@@ -8,8 +10,18 @@ export default async function AddItemPage({
 }: {
   params: Promise<{ collectionId: string }>;
 }) {
+  /** TEMP GUARD FOR DB INJECTION */
+
+  const { userId } = await auth();
+
+  if (userId !== "user_3At4IYWqSuiNtNy5T9g2kyGpLJP") {
+    notFound();
+  }
+
+  /** END TEMP GUARD */
+
   const collectionId = (await params).collectionId;
-  const collection = await getCollection(collectionId);
+  const collection = await getAuthedCollectionById(collectionId);
 
   if (!collection) {
     return (

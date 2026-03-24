@@ -1,10 +1,11 @@
-import { auth } from "@clerk/nextjs/server";
-import { cx } from "class-variance-authority";
-import Image from "next/image";
 import { CollectionItemsList } from "@/components/collection/CollectionItemsList";
 import { ItemActions } from "@/components/header/ItemActions";
 import { PageTitle } from "@/components/header/PageTitle";
 import PageContent from "@/components/PageContent";
+import { auth } from "@clerk/nextjs/server";
+import { cx } from "class-variance-authority";
+import Image from "next/image";
+import { notFound } from "next/navigation";
 // import { getItemWithSiblings } from "~/server/query/item";
 
 export default async function ItemPage({
@@ -12,6 +13,16 @@ export default async function ItemPage({
 }: {
   params: Promise<{ collectionId: string; itemId: string }>;
 }) {
+  /** TEMP GUARD FOR DB INJECTION */
+
+  const { userId } = await auth();
+
+  if (userId !== "user_3At4IYWqSuiNtNy5T9g2kyGpLJP") {
+    notFound();
+  }
+
+  /** END TEMP GUARD */
+
   const { collectionId, itemId } = await params;
 
   const item: any = {
@@ -29,7 +40,7 @@ export default async function ItemPage({
     return (
       <>
         <PageTitle
-          title='Oops!'
+          title="Oops!"
           breadcrumbs={[{ name: "Collections", href: "/collections" }]}
         />
 
@@ -39,8 +50,6 @@ export default async function ItemPage({
       </>
     );
   }
-
-  const user = await auth();
 
   return (
     <>
@@ -54,15 +63,15 @@ export default async function ItemPage({
           },
         ]}
       >
-        {user.userId === item.userId && (
+        {userId === item.userId && (
           <ItemActions collectionId={collectionId} itemId={itemId} />
         )}
       </PageTitle>
 
       <PageContent sidePanel>
-        <div className='gap-6 py-6 xl:grid xl:grid-cols-[280px_1fr] 2xl:grid-cols-[340px_1fr]'>
+        <div className="gap-6 py-6 xl:grid xl:grid-cols-[280px_1fr] 2xl:grid-cols-[340px_1fr]">
           <Image
-            className='max-h-[300px] w-full rounded-md border p-4 lg:max-h-[440px] lg:max-w-[340px]'
+            className="max-h-[300px] w-full rounded-md border p-4 lg:max-h-[440px] lg:max-w-[340px]"
             src={item.image}
             alt={item.name}
             style={{ objectFit: "contain" }}
@@ -70,7 +79,7 @@ export default async function ItemPage({
             width={300}
           />
 
-          <ul className='mt-6 space-y-4 xl:mt-0'>
+          <ul className="mt-6 space-y-4 xl:mt-0">
             {/* {item.collection.collectionProperties.map((prop, i) => (
                 <li key={i}>
                   <span className="mr-2 text-primary">{prop.name}</span>{" "}
@@ -96,7 +105,7 @@ export default async function ItemPage({
 
         <CollectionItemsList
           collection={item.collection}
-          className='border-t border-dashed py-6 xl:border-l xl:border-t-0 xl:pl-6'
+          className="border-t border-dashed py-6 xl:border-l xl:border-t-0 xl:pl-6"
         />
       </PageContent>
     </>

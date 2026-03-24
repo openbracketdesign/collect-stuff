@@ -3,45 +3,37 @@ import { CollectionActions } from "@/components/header/CollectionActions";
 import { PageTitle } from "@/components/header/PageTitle";
 import PageContent from "@/components/PageContent";
 import { Button } from "@/components/ui/button";
+import { getCollectionById } from "@/server/query";
 import { auth } from "@clerk/nextjs/server";
 import { cx } from "class-variance-authority";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-// import { getCollectionWithItemProperties } from "~/server/query/collection";
+import { notFound } from "next/navigation";
 
 export default async function CollectionPage({
   params,
 }: {
   params: Promise<{ collectionId: string }>;
 }) {
-  const collectionId = (await params).collectionId;
-  // const collection = await getCollectionWithItemProperties(collectionId);
-  const collection = {
-    name: "test collection",
-    description: "This is a mock description for the collection.",
-    userId: "mockUserId123",
-    items: [
-      {
-        id: "item1",
-        name: "Mock Item One",
-        description: "First mock item in the collection.",
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: "item2",
-        name: "Mock Item Two",
-        description: "Second mock item in the collection.",
-        createdAt: new Date().toISOString(),
-      },
-    ],
-  };
+  /** TEMP GUARD FOR DB INJECTION */
+
+  const { userId } = await auth();
+
+  if (userId !== "user_3At4IYWqSuiNtNy5T9g2kyGpLJP") {
+    notFound();
+  }
+
+  /** END TEMP GUARD */
+
+  const { collectionId } = await params;
+  const collection = await getCollectionById(collectionId);
 
   if (!collection) {
     return (
       <>
         <PageTitle
           breadcrumbs={[{ name: "My Collections", href: "/collections" }]}
-          title='Oops!'
+          title="Oops!"
         />
         <PageContent>
           <h1>Collection not found</h1>
@@ -63,7 +55,7 @@ export default async function CollectionPage({
         )}
       </PageTitle>
 
-      <div className='mt-6 border-t md:m-0 md:border-0'>
+      <div className="mt-6 border-t md:m-0 md:border-0">
         <PageContent>
           <p
             className={cx("mb-4 max-w-[70ch]", {
@@ -75,21 +67,21 @@ export default async function CollectionPage({
 
           <div
             className={cx("mb-4 mt-6 border-t pt-6", {
-              "mb-0": collection.items.length === 0,
+              "mb-0": collection.items?.length === 0,
             })}
           >
-            <div className='inline-flex'>
-              <h2 className='text-2xl text-primary'>
-                {collection.items.length}{" "}
-                {collection.items.length === 1 ? "item" : "items"}
+            <div className="inline-flex">
+              <h2 className="text-2xl text-primary">
+                {collection.items?.length ?? 0}{" "}
+                {collection.items?.length === 1 ? "item" : "items"}
               </h2>
 
               {user.userId === collection.userId && (
                 <Link
                   href={`/collections/${collectionId}/add`}
-                  className='ml-4'
+                  className="ml-4"
                 >
-                  <Button size='sm'>
+                  <Button size="sm">
                     Add <Plus />
                   </Button>
                 </Link>

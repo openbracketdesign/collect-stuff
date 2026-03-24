@@ -24,6 +24,7 @@ export function NewCollectionForm() {
         router.replace(`/collections/${newCollection?.[0]?.id}`);
       }
     } catch (error) {
+      console.error(error);
       toast("Failed to create collection :(");
     }
   };

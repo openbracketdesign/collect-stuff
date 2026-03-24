@@ -4,11 +4,11 @@ import { Hamburger } from "./Hamburger";
 import { PageTitleContent } from "./PageTitleContent";
 
 export function PageTitle({
-  breadcrumbs,
+  breadcrumbs = [],
   title,
   children: RightContent,
 }: {
-  breadcrumbs: Array<{
+  breadcrumbs?: Array<{
     name: string;
     href: string;
   }>;
