@@ -1,5 +1,10 @@
+"use server";
+
 import { auth } from "@clerk/nextjs/server";
-import { neon } from "@neondatabase/serverless";
+import { and, asc, desc, eq } from "drizzle-orm";
+
+import { db } from "./db";
+import { collection } from "./schema";
 
 export async function getMyCollections(
   orderBy: "date" | "name" = "date",
@@ -11,13 +16,14 @@ export async function getMyCollections(
     throw new Error("Not authenticated");
   }
 
-  const sql = neon(`${process.env.DATABASE_URL}`);
-  const collections = await sql`
-    SELECT * FROM collections
-    WHERE "userId" = ${userId}
-    ORDER BY ${orderBy === "date" ? sql`date` : sql`name`} ${orderDirection === "ASC" ? sql`ASC` : sql`DESC`}
-  `;
-  return collections;
+  const orderColumn = orderBy === "date" ? collection.date : collection.name;
+  const orderFn = orderDirection === "ASC" ? asc : desc;
+
+  return db.query.collection.findMany({
+    where: eq(collection.userId, userId),
+    orderBy: [orderFn(orderColumn)],
+    with: { items: true },
+  });
 }
 
 export async function getAuthedCollectionById(id: string) {
@@ -31,13 +37,10 @@ export async function getAuthedCollectionById(id: string) {
     throw new Error("Not authenticated for this collection");
   }
 
-  const sql = neon(`${process.env.DATABASE_URL}`);
-  const collection = await sql`
-    SELECT * FROM collections
-    WHERE id = ${id}
-    AND "userId" = ${userId}
-  `;
-  return collection?.[0];
+  return db.query.collection.findFirst({
+    where: and(eq(collection.id, id), eq(collection.userId, userId)),
+    with: { items: true },
+  });
 }
 
 export async function getCollectionById(id: string) {
@@ -51,10 +54,8 @@ export async function getCollectionById(id: string) {
     throw new Error("Not authenticated");
   }
 
-  const sql = neon(`${process.env.DATABASE_URL}`);
-  const collection = await sql`
-    SELECT * FROM collections
-    WHERE id = ${id}
-  `;
-  return collection?.[0];
+  return db.query.collection.findFirst({
+    where: eq(collection.id, id),
+    with: { items: true },
+  });
 }

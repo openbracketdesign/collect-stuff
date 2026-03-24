@@ -1,26 +1,33 @@
 "use server";
 
 import { currentUser } from "@clerk/nextjs/server";
-import { neon } from "@neondatabase/serverless";
+import { and, eq } from "drizzle-orm";
+
+import { db } from "./db";
+import { collection } from "./schema";
+
+function formText(value: FormDataEntryValue | null): string | null {
+  return typeof value === "string" ? value : null;
+}
 
 export async function createCollection(formData: FormData) {
-  // Connect to the Neon database
   const user = await currentUser();
 
   if (!user?.id) {
     throw new Error("User not authenticated");
   }
 
-  const sql = neon(`${process.env.DATABASE_URL}`);
-  const name = formData.get("name");
-  const description = formData.get("description");
+  const name = formText(formData.get("name")) ?? "";
+  const description = formText(formData.get("description"));
 
-  // Insert the collection from the form into the Postgres database
-  const newCollection = await sql`
-      INSERT INTO collections (name, description, date, "userId")
-      VALUES (${name}, ${description}, NOW(), ${user.id})
-      RETURNING id`;
-  return newCollection;
+  return db
+    .insert(collection)
+    .values({
+      name,
+      description,
+      userId: user.id,
+    })
+    .returning({ id: collection.id });
 }
 
 export async function editCollection(formData: FormData, collectionId: string) {
@@ -30,13 +37,18 @@ export async function editCollection(formData: FormData, collectionId: string) {
     throw new Error("User not authenticated");
   }
 
-  const sql = neon(`${process.env.DATABASE_URL}`);
-  const name = formData.get("name");
-  const description = formData.get("description");
+  const name = formText(formData.get("name")) ?? "";
+  const description = formText(formData.get("description"));
 
-  // Insert the collection from the form into the Postgres database
-  const updatedCollection = await sql`
-      UPDATE collections SET name = ${name}, description = ${description} WHERE id = ${collectionId} AND "userId" = ${user.id}
-      RETURNING name`;
-  return updatedCollection;
+  return db
+    .update(collection)
+    .set({
+      name,
+      description,
+      modified: new Date(),
+    })
+    .where(
+      and(eq(collection.id, collectionId), eq(collection.userId, user.id)),
+    )
+    .returning({ name: collection.name });
 }
