@@ -5,15 +5,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getMyCollections } from "@/server/query";
-import Image from "next/image";
+import { getMyCollectionsWithItems } from "@/server/query";
 import Link from "next/link";
 import { CreateCollectionButton } from "../button/CreateCollectionButton";
 import { PageTitle } from "../header/PageTitle";
 import PageContent from "../PageContent";
 
 export const MyCollections = async () => {
-  const collections = await getMyCollections();
+  const collections = await getMyCollectionsWithItems();
 
   if (!collections) {
     return (
@@ -43,23 +42,25 @@ export const MyCollections = async () => {
               <Card className="group grid h-full grid-cols-[2fr_3fr] gap-4 p-4 hover:border-primary-300">
                 <CardContent className="p-0">
                   <div className="grid grid-cols-2 gap-2">
-                    {[0, 1, 2, 3].map((i) =>
-                      collection.items?.length > 0 && collection.items[i] ? (
-                        <Image
-                          key={i}
-                          src={collection.items[i].image}
-                          alt={collection.items[i].name}
-                          width={70}
-                          height={70}
-                          className="h-16 w-full rounded"
-                          style={{ objectFit: "cover" }}
-                        />
-                      ) : (
+                    {[0, 1, 2, 3].map(
+                      (i) => (
+                        // collection.items?.length > 0 && collection.items[i] ? (
+                        //   <Image
+                        //     key={i}
+                        //     src={collection.items[i].image}
+                        //     alt={collection.items[i].name}
+                        //     width={70}
+                        //     height={70}
+                        //     className="h-16 w-full rounded"
+                        //     style={{ objectFit: "cover" }}
+                        //   />
+                        // ) : (
                         <div
                           key={i}
                           className="h-16 w-full rounded border"
                         ></div>
                       ),
+                      // ),
                     )}
                   </div>
                 </CardContent>

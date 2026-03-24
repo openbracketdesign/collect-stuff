@@ -15,9 +15,7 @@ export function NewCollectionForm() {
 
   const doCreateCollection = async (formData: FormData) => {
     try {
-      const newCollection = (await createCollection(formData)) as {
-        id: string;
-      }[];
+      const newCollection = await createCollection(formData);
 
       if (newCollection?.[0]?.id) {
         toast(`"${formData.get("name") as string}" created!`);

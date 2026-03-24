@@ -1,7 +1,7 @@
 import { PageTitle } from "@/components/header/PageTitle";
 import PageContent from "@/components/PageContent";
 import { getAuthedCollectionById } from "@/server/query";
-// import { AddItemForm } from "./AddItemForm";
+import { AddItemForm } from "./AddItemForm";
 
 export default async function AddItemPage({
   params,
@@ -35,7 +35,7 @@ export default async function AddItemPage({
       <PageContent>
         <h2 className="mb-4 text-2xl text-primary">Add item</h2>
 
-        {/* <AddItemForm collection={collection} /> */}
+        <AddItemForm collection={collection} />
       </PageContent>
     </>
   );

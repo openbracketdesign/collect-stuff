@@ -1,5 +1,6 @@
 "use client";
 
+import type { CollectionWithItems } from "@/server/schema";
 import { cx } from "class-variance-authority";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -9,20 +10,20 @@ export function CollectionItemsList({
   collection,
   className,
 }: {
-  collection: any;
+  collection: CollectionWithItems;
   className: string;
 }) {
   const pathname = usePathname();
 
   return (
     <div className={className}>
-      <h2 className='space-grotesk mb-2 text-xl font-semibold tracking-tight'>
-        <Link className='text-primary' href={`/collections/${collection.id}`}>
+      <h2 className="space-grotesk mb-2 text-xl font-semibold tracking-tight">
+        <Link className="text-primary" href={`/collections/${collection.id}`}>
           {collection.name}
         </Link>
       </h2>
 
-      <div className='xl:border-l xl:pl-4'>
+      <div className="xl:border-l xl:pl-4">
         {collection.items?.map((item: any) => (
           <Link
             key={item.id}

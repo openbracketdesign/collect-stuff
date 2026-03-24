@@ -5,34 +5,27 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { editCollection } from "@/server/actions";
-import { ArrowLeftCircle, Check, CheckCircle } from "lucide-react";
+import { Collection } from "@/server/schema";
+import { ArrowLeftCircle, Check } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-// import { type Collection } from "@/types";
-
-export function EditCollectionForm({
-  collection,
-}: {
-  collection: Record<string, any>;
-}) {
+export function EditCollectionForm({ collection }: { collection: Collection }) {
   const router = useRouter();
 
   const doEditCollection = async (formData: FormData) => {
     try {
-      await editCollection(formData, collection.id);
+      const updatedCollection = await editCollection(formData, collection.id);
 
-      // TODO: style toast
-      toast(
-        <div className="flex items-center gap-2">
-          <CheckCircle />
-          {`"${formData.get("name") as string}" updated successfully.`}
-        </div>,
-      );
-
-      router.replace(`/collections/${collection.id}`);
+      if (updatedCollection?.[0]?.name) {
+        toast(`"${updatedCollection[0].name}" updated successfully.`);
+        router.replace(`/collections/${collection.id}`);
+      } else {
+        toast("Failed to update collection :(");
+      }
     } catch (error) {
+      console.error(error);
       toast("Failed to update collection :(");
     }
   };

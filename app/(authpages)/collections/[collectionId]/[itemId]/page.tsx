@@ -2,9 +2,9 @@ import { CollectionItemsList } from "@/components/collection/CollectionItemsList
 import { ItemActions } from "@/components/header/ItemActions";
 import { PageTitle } from "@/components/header/PageTitle";
 import PageContent from "@/components/PageContent";
+import { getItemWithCollectionAndItemsById } from "@/server/query";
 import { auth } from "@clerk/nextjs/server";
 import { cx } from "class-variance-authority";
-import Image from "next/image";
 // import { getItemWithSiblings } from "~/server/query/item";
 
 export default async function ItemPage({
@@ -14,16 +14,7 @@ export default async function ItemPage({
 }) {
   const { collectionId, itemId } = await params;
 
-  const item: any = {
-    name: "Item 1",
-    collection: {
-      name: "Collection 1",
-      id: "1",
-    },
-    userId: "1",
-    image: "https://via.placeholder.com/150",
-    description: "Description 1",
-  }; // await getItemWithSiblings(itemId);
+  const item = await getItemWithCollectionAndItemsById(itemId);
 
   if (!item) {
     return (
@@ -61,14 +52,14 @@ export default async function ItemPage({
 
       <PageContent sidePanel>
         <div className="gap-6 py-6 xl:grid xl:grid-cols-[280px_1fr] 2xl:grid-cols-[340px_1fr]">
-          <Image
+          {/* <Image
             className="max-h-[300px] w-full rounded-md border p-4 lg:max-h-[440px] lg:max-w-[340px]"
             src={item.image}
             alt={item.name}
             style={{ objectFit: "contain" }}
             height={300}
             width={300}
-          />
+          /> */}
 
           <ul className="mt-6 space-y-4 xl:mt-0">
             {/* {item.collection.collectionProperties.map((prop, i) => (

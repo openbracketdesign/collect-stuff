@@ -33,3 +33,18 @@ export const itemRelations = relations(item, ({ one }) => ({
     references: [collection.id],
   }),
 }));
+
+/** Row shape from `SELECT` / `db.query.*` on `collection` alone */
+export type Collection = typeof collection.$inferSelect;
+/** Values accepted by `db.insert(collection)` */
+export type NewCollection = typeof collection.$inferInsert;
+
+export type Item = typeof item.$inferSelect;
+export type NewItem = typeof item.$inferInsert;
+
+/** Matches `with: { items: true }` on collection queries */
+export type CollectionWithItems = Collection & { items: Item[] };
+
+/** Matches `with: { collection: true }` on item queries */
+export type ItemWithCollection = Item & { collection: Collection };
+export type ItemWithCollectionAndItems = ItemWithCollection & { items: Item[] };

@@ -1,16 +1,20 @@
 "use client";
 
-import { cx } from "class-variance-authority";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-// import type { CollectionNoProperties } from "@/types";
+import { Collection } from "@/server/schema";
+import { cx } from "class-variance-authority";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-export function SidebarCollections({ collections }: { collections: any[] }) {
+export function SidebarCollections({
+  collections,
+}: {
+  collections: Collection[];
+}) {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
 
