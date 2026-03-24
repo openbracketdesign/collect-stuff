@@ -1,11 +1,11 @@
+import { MyCollections } from "@/components/collection/MyCollections";
 import { PageTitle } from "@/components/header/PageTitle";
-import { MyCollections } from "@/components/MyCollections";
 import PageContent from "@/components/PageContent";
 
 export default async function CollectionsPage() {
   return (
     <>
-      <PageTitle title='My Collections' breadcrumbs={[]} />
+      <PageTitle title="My Collections" breadcrumbs={[]} />
 
       <PageContent>
         <MyCollections />

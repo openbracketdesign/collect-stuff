@@ -1,7 +1,15 @@
+import { PageTitle } from "@/components/header/PageTitle";
+import PageContent from "@/components/PageContent";
+import { NewCollectionForm } from "./NewCollectionForm";
+
 export default function NewCollectionPage() {
   return (
-    <div>
-      <h1>New Collection</h1>
-    </div>
+    <>
+      <PageTitle title="Create a new collection" breadcrumbs={[]} />
+
+      <PageContent>
+        <NewCollectionForm />
+      </PageContent>
+    </>
   );
 }

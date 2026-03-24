@@ -1,7 +1,3 @@
-import { Plus } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,9 +5,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Image from "next/image";
+import Link from "next/link";
 // import { getMyCollections } from "~/server/query/collection";
-import { PageTitle } from "./header/PageTitle";
-import PageContent from "./PageContent";
+import { CreateCollectionButton } from "../button/CreateCollectionButton";
+import { PageTitle } from "../header/PageTitle";
+import PageContent from "../PageContent";
 
 export const MyCollections = async () => {
   const collections: any[] = []; // await getMyCollections();
@@ -19,7 +18,7 @@ export const MyCollections = async () => {
   if (!collections) {
     return (
       <>
-        <PageTitle title='Oops!' breadcrumbs={[{ name: "Home", href: "/" }]} />
+        <PageTitle title="Oops!" breadcrumbs={[{ name: "Home", href: "/" }]} />
 
         <PageContent>
           <h1>Collections not found</h1>
@@ -31,19 +30,19 @@ export const MyCollections = async () => {
   return (
     <>
       {collections.length > 0 && (
-        <h2 className='mb-4 text-2xl text-primary'>
+        <h2 className="mb-4 text-2xl text-primary">
           {collections.length}{" "}
           {collections.length === 1 ? "collection" : "collections"}
         </h2>
       )}
 
       {collections.length > 0 && (
-        <div className='grid grid-cols-[repeat(auto-fill,minmax(340px,1fr))] gap-4'>
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(340px,1fr))] gap-4">
           {collections.map((collection) => (
             <Link key={collection.id} href={`/collections/${collection.id}`}>
-              <Card className='group grid h-full grid-cols-[2fr_3fr] gap-4 p-4 hover:border-primary-300'>
-                <CardContent className='p-0'>
-                  <div className='grid grid-cols-2 gap-2'>
+              <Card className="group grid h-full grid-cols-[2fr_3fr] gap-4 p-4 hover:border-primary-300">
+                <CardContent className="p-0">
+                  <div className="grid grid-cols-2 gap-2">
                     {[0, 1, 2, 3].map((i) =>
                       collection.items[i] ? (
                         <Image
@@ -52,30 +51,30 @@ export const MyCollections = async () => {
                           alt={collection.items[i].name}
                           width={70}
                           height={70}
-                          className='h-16 w-full rounded'
+                          className="h-16 w-full rounded"
                           style={{ objectFit: "cover" }}
                         />
                       ) : (
                         <div
                           key={i}
-                          className='h-16 w-full rounded border'
+                          className="h-16 w-full rounded border"
                         ></div>
                       ),
                     )}
                   </div>
                 </CardContent>
 
-                <CardHeader className='p-0'>
-                  <CardTitle className='space-grotesk text-xl leading-tight group-hover:text-primary'>
+                <CardHeader className="p-0">
+                  <CardTitle className="space-grotesk text-xl leading-tight group-hover:text-primary">
                     {`${collection.name.slice(0, 50)}${collection.name.length > 50 ? "..." : ""}`}
                   </CardTitle>
 
-                  <CardDescription className='mt-2 line-clamp-3 text-primary empty:hidden'>
+                  <CardDescription className="mt-2 line-clamp-3 text-primary empty:hidden">
                     {collection.items.length}{" "}
                     {`${collection.items.length === 1 ? "item" : "items"}`}
                   </CardDescription>
 
-                  <CardDescription className='mt-2 line-clamp-3 empty:hidden'>
+                  <CardDescription className="mt-2 line-clamp-3 empty:hidden">
                     {collection.description}
                   </CardDescription>
                 </CardHeader>
@@ -87,15 +86,11 @@ export const MyCollections = async () => {
 
       {collections.length < 1 && (
         <div>
-          <p className='mb-4'>
+          <p className="mb-4">
             No collections yet! We&apos;ve all got to start somewhere.
           </p>
 
-          <Link href='/collections/new'>
-            <Button>
-              Create <Plus />
-            </Button>
-          </Link>
+          <CreateCollectionButton />
         </div>
       )}
     </>
