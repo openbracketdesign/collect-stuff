@@ -6,7 +6,7 @@ import { and, asc, desc, eq } from "drizzle-orm";
 import { db } from "./db";
 import { collection, item } from "./schema";
 
-export async function getMyCollections(
+export async function getMyCollectionList(
   orderBy: "date" | "name" = "date",
   orderDirection: "ASC" | "DESC" = "DESC",
 ) {
@@ -41,7 +41,15 @@ export async function getMyCollectionsWithItems(
   return db.query.collection.findMany({
     where: eq(collection.userId, userId),
     orderBy: [orderFn(orderColumn)],
-    with: { items: true },
+    with: {
+      items: {
+        with: {
+          images: {
+            limit: 4,
+          },
+        },
+      },
+    },
   });
 }
 
@@ -60,7 +68,15 @@ export async function getCollectionsWithItemsByUserId(
   return db.query.collection.findMany({
     where: eq(collection.userId, userId),
     orderBy: [orderFn(orderColumn)],
-    with: { items: true },
+    with: {
+      items: {
+        with: {
+          images: {
+            limit: 4,
+          },
+        },
+      },
+    },
   });
 }
 
@@ -77,7 +93,6 @@ export async function getAuthedCollectionById(id: string) {
 
   return db.query.collection.findFirst({
     where: and(eq(collection.id, id), eq(collection.userId, userId)),
-    with: { items: true },
   });
 }
 
@@ -94,7 +109,15 @@ export async function getCollectionById(id: string) {
 
   return db.query.collection.findFirst({
     where: eq(collection.id, id),
-    with: { items: true },
+    with: {
+      items: {
+        with: {
+          images: {
+            limit: 4,
+          },
+        },
+      },
+    },
   });
 }
 
@@ -111,17 +134,9 @@ export async function getAuthedItemById(id: string) {
 
   return db.query.item.findFirst({
     where: and(eq(item.id, id), eq(item.userId, userId)),
-  });
-}
-
-export async function getItemWithCollectionById(id: string) {
-  if (!id) {
-    throw new Error("No item ID provided");
-  }
-
-  return db.query.item.findFirst({
-    where: eq(item.id, id),
-    with: { collection: true },
+    with: {
+      images: true,
+    },
   });
 }
 
@@ -138,6 +153,7 @@ export async function getItemWithCollectionAndItemsById(id: string) {
           items: { orderBy: [asc(item.name)] },
         },
       },
+      images: true,
     },
   });
 }

@@ -5,7 +5,7 @@ import PageContent from "@/components/PageContent";
 import { getItemWithCollectionAndItemsById } from "@/server/query";
 import { auth } from "@clerk/nextjs/server";
 import { cx } from "class-variance-authority";
-// import { getItemWithSiblings } from "~/server/query/item";
+import Image from "next/image";
 
 export default async function ItemPage({
   params,
@@ -52,14 +52,14 @@ export default async function ItemPage({
 
       <PageContent sidePanel>
         <div className="gap-6 py-6 xl:grid xl:grid-cols-[280px_1fr] 2xl:grid-cols-[340px_1fr]">
-          {/* <Image
+          <Image
             className="max-h-[300px] w-full rounded-md border p-4 lg:max-h-[440px] lg:max-w-[340px]"
-            src={item.image}
+            src={item.images[0].url}
             alt={item.name}
             style={{ objectFit: "contain" }}
             height={300}
             width={300}
-          /> */}
+          />
 
           <ul className="mt-6 space-y-4 xl:mt-0">
             {/* {item.collection.collectionProperties.map((prop, i) => (

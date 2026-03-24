@@ -14,7 +14,6 @@ export const item = pgTable("item", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   description: text("description"),
-  image: text("image").notNull().default(""),
   userId: text("userId").notNull(),
   collectionId: uuid("collectionId")
     .notNull()
@@ -23,14 +22,31 @@ export const item = pgTable("item", {
   modified: timestamp("modified").defaultNow().notNull(),
 });
 
+export const itemImage = pgTable("item_image", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  itemId: uuid("itemId")
+    .notNull()
+    .references(() => item.id, { onDelete: "cascade" }),
+  url: text("url").notNull(),
+  fileKey: text("fileKey").notNull(),
+});
+
 export const collectionRelations = relations(collection, ({ many }) => ({
   items: many(item),
 }));
 
-export const itemRelations = relations(item, ({ one }) => ({
+export const itemRelations = relations(item, ({ one, many }) => ({
   collection: one(collection, {
     fields: [item.collectionId],
     references: [collection.id],
+  }),
+  images: many(itemImage),
+}));
+
+export const itemImageRelations = relations(itemImage, ({ one }) => ({
+  item: one(item, {
+    fields: [itemImage.itemId],
+    references: [item.id],
   }),
 }));
 
@@ -42,9 +58,20 @@ export type NewCollection = typeof collection.$inferInsert;
 export type Item = typeof item.$inferSelect;
 export type NewItem = typeof item.$inferInsert;
 
+export type ItemImage = typeof itemImage.$inferSelect;
+
 /** Matches `with: { items: true }` on collection queries */
 export type CollectionWithItems = Collection & { items: Item[] };
 
+/** Matches `with: { images: true }` on item queries */
+export type ItemWithImages = Item & { images: ItemImage[] };
+
 /** Matches `with: { collection: true }` on item queries */
 export type ItemWithCollection = Item & { collection: Collection };
-export type ItemWithCollectionAndItems = ItemWithCollection & { items: Item[] };
+export type ItemWithCollectionAndImages = ItemWithCollection & {
+  images: ItemImage[];
+};
+
+export type ItemWithCollectionAndItems = ItemWithCollectionAndImages & {
+  items: Item[];
+};
