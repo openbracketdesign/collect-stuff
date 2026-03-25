@@ -4,7 +4,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { and, eq } from "drizzle-orm";
 
 import { db } from "./db";
-import { collection, item } from "./schema";
+import { collection, item, itemImage } from "./schema";
 
 function formText(value: FormDataEntryValue | null): string | null {
   return typeof value === "string" ? value : null;
@@ -77,7 +77,7 @@ export async function createItem(formData: FormData, collectionId: string) {
       collectionId,
       userId: user.id,
     })
-    .returning({ id: item.id });
+    .returning({ id: item.id, name: item.name });
 }
 
 export async function editItem(formData: FormData, itemId: string) {
@@ -103,4 +103,34 @@ export async function editItem(formData: FormData, itemId: string) {
     })
     .where(and(eq(item.id, itemId), eq(item.userId, user.id)))
     .returning({ name: item.name });
+}
+
+/** insert images to item_image table, assigning them to item by itemId */
+export async function addImagesToItem(
+  itemId: string,
+  imageUrls: { url: string; fileKey: string }[] | undefined,
+) {
+  if (!itemId) {
+    throw new Error("Item ID is required");
+  }
+
+  if (!imageUrls) {
+    throw new Error("Image URLs are required");
+  }
+
+  const user = await currentUser();
+
+  if (!user?.id) {
+    throw new Error("User not authenticated");
+  }
+
+  await db.insert(itemImage).values(
+    imageUrls.map((image) => ({
+      itemId,
+      url: image.url,
+      fileKey: image.fileKey,
+    })),
+  );
+
+  // not returning anything, just inserting the item image(s)
 }

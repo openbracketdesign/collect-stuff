@@ -1,72 +1,74 @@
 "use client";
 
-import { ArrowLeftCircle, Check } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useRef } from "react";
-import { toast } from "sonner";
-// import { useUploadThing } from "@/hooks/useUploadThing";
+import { useUploadThing } from "@/app/api/uploadthing/hooks";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { createItem } from "@/server/actions";
+import { addImagesToItem, createItem } from "@/server/actions";
 import { Collection } from "@/server/schema";
+import { ArrowLeftCircle, Check } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export function AddItemForm({ collection }: { collection: Collection }) {
-  // const [files, setFiles] = useState<File[]>([]);
-  const itemId = useRef<string | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
 
   const router = useRouter();
 
-  const doAddItemToCollection = async (formData: FormData) => {
+  const addItemToCollection = async (formData: FormData) => {
     try {
-      const newItem = await createItem(formData, collection.id);
-      toast(`"${formData.get("name") as string}" added! Uploading image...`);
+      const [newItem] = await createItem(formData, collection.id);
 
-      if (newItem?.[0]?.id) {
-        itemId.current = newItem?.[0]?.id;
+      if (!newItem?.id) {
+        toast("Failed to add item :(");
+        throw new Error("Failed to create item");
       }
 
-      router.replace(`/collections/${collection.id}/${newItem?.[0]?.id}`);
+      toast(`"${newItem.name}" added! Uploading image...`);
 
-      // TODO: only upload if different files and files exist
-      // await startUpload(files);
+      /** TODO: only upload if different files and files exist */
+      const imageUrls = await startUpload(files);
 
-      // router.refresh();
+      if (imageUrls) {
+        await addImagesToItem(
+          newItem.id,
+          imageUrls.map((image) => ({ url: image.ufsUrl, fileKey: image.key })),
+        );
+      }
+
+      router.replace(`/collections/${collection.id}/${newItem.id}`);
     } catch (error) {
       toast("Failed to add item :(");
     }
   };
 
-  // const { startUpload } = useUploadThing("imageUploader", {
-  //   onClientUploadComplete: async (uploadResult) => {
-  //     try {
-  //       if (!uploadResult?.[0]?.url || !itemId.current) {
-  //         throw new Error(
-  //           "Couldn't upload image, but the rest of your data was saved. Try again later.",
-  //         );
-  //       }
+  const { startUpload } = useUploadThing("imageUploader", {
+    onClientUploadComplete: async (uploadResult) => {
+      try {
+        if (!uploadResult?.[0]?.ufsUrl) {
+          throw new Error(
+            "Couldn't upload image, but the rest of your data was saved. Try again later.",
+          );
+        }
 
-  //       await addItemImageSubmit({
-  //         itemId: itemId.current,
-  //         image: uploadResult[0].url,
-  //       });
-  //       toast(`Image uploaded successfully.`);
-  //     } catch (e) {
-  //       console.error(e);
-  //       toast(
-  //         "Couldn't upload image, but the rest of your data was saved. Try again later.",
-  //       );
-  //     }
-  //   },
-  // });
+        toast(`Image uploaded successfully.`);
+      } catch (e) {
+        console.error(e);
+        toast(
+          "Couldn't upload image, but the rest of your data was saved. Try again later.",
+        );
+      }
+    },
+  });
 
   // TODO: use shadcn <Form> component
 
   return (
     <form
-      action={doAddItemToCollection}
+      action={addItemToCollection}
       className="flex max-w-[100%] flex-col gap-4 md:max-w-[600px]"
     >
       <div className="mb-3 flex flex-col gap-4 sm:flex-row sm:gap-2">
@@ -88,7 +90,20 @@ export function AddItemForm({ collection }: { collection: Collection }) {
           Image (max 4MB)
         </Label>
 
-        {/* <Input
+        {/* <UploadButton
+          endpoint="imageUploader"
+          onClientUploadComplete={(res) => {
+            // Do something with the response
+            console.log("Files: ", res);
+            alert("uploaded successfully!");
+          }}
+          onUploadError={(error: Error) => {
+            // Do something with the error.
+            alert(`ERROR! ${error.message}`);
+          }}
+        /> */}
+
+        <Input
           type="file"
           onChange={async (e) => {
             const files = Array.from(e.target.files ?? []);
@@ -99,7 +114,7 @@ export function AddItemForm({ collection }: { collection: Collection }) {
             // Then start the upload
             // await startUpload(files);
           }}
-        /> */}
+        />
         {/* <MultiUploader /> */}
       </div>
 

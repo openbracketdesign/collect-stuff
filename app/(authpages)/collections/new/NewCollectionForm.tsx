@@ -15,11 +15,11 @@ export function NewCollectionForm() {
 
   const doCreateCollection = async (formData: FormData) => {
     try {
-      const newCollection = await createCollection(formData);
+      const [newCollection] = await createCollection(formData);
 
-      if (newCollection?.[0]?.id) {
+      if (newCollection?.id) {
         toast(`"${formData.get("name") as string}" created!`);
-        router.replace(`/collections/${newCollection?.[0]?.id}`);
+        router.replace(`/collections/${newCollection.id}`);
       }
     } catch (error) {
       console.error(error);
