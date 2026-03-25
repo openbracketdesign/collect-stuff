@@ -106,7 +106,7 @@ export async function editItem(formData: FormData, itemId: string) {
 }
 
 /** insert images to item_image table, assigning them to item by itemId */
-export async function addImagesToItem(
+export async function insertItemImages(
   itemId: string,
   imageUrls: { url: string; fileKey: string }[] | undefined,
 ) {

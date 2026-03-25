@@ -52,15 +52,20 @@ export default async function ItemPage({
 
       <PageContent sidePanel>
         <div className="gap-6 py-6 xl:grid xl:grid-cols-[280px_1fr] 2xl:grid-cols-[340px_1fr]">
-          {item.images[0]?.url && (
-            <Image
-              className="max-h-[300px] w-full rounded-md border p-4 lg:max-h-[440px] lg:max-w-[340px]"
-              src={item.images[0].url}
-              alt={item.name}
-              style={{ objectFit: "contain" }}
-              height={300}
-              width={300}
-            />
+          {item.images.length > 0 && (
+            <div className="flex flex-wrap gap-4">
+              {item.images.map((image) => (
+                <Image
+                  key={image.id}
+                  className="max-h-[300px] w-full rounded-md border p-4 lg:max-h-[440px] lg:max-w-[340px]"
+                  src={image.url}
+                  alt={item.name}
+                  style={{ objectFit: "contain" }}
+                  height={300}
+                  width={300}
+                />
+              ))}
+            </div>
           )}
 
           <ul className="mt-6 space-y-4 xl:mt-0">

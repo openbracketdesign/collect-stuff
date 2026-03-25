@@ -1,11 +1,12 @@
 "use client";
 
 import { useUploadThing } from "@/app/api/uploadthing/hooks";
+import { MultiUploader } from "@/components/MultiUploader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { addImagesToItem, createItem } from "@/server/actions";
+import { createItem, insertItemImages } from "@/server/actions";
 import { Collection } from "@/server/schema";
 import { ArrowLeftCircle, Check } from "lucide-react";
 import Link from "next/link";
@@ -27,13 +28,15 @@ export function AddItemForm({ collection }: { collection: Collection }) {
         throw new Error("Failed to create item");
       }
 
-      toast(`"${newItem.name}" added! Uploading image...`);
+      toast(
+        `"${newItem.name}" added! Uploading ${files.length > 1 ? "images" : "image"}...`,
+      );
 
       /** TODO: only upload if different files and files exist */
       const imageUrls = await startUpload(files);
 
       if (imageUrls) {
-        await addImagesToItem(
+        await insertItemImages(
           newItem.id,
           imageUrls.map((image) => ({ url: image.ufsUrl, fileKey: image.key })),
         );
@@ -87,7 +90,7 @@ export function AddItemForm({ collection }: { collection: Collection }) {
 
       <div className="flex flex-col gap-4 sm:flex-row sm:gap-2">
         <Label htmlFor="image" className="flex w-40 items-start sm:pt-2">
-          Image (max 4MB)
+          Images (max 10, max 4MB each)
         </Label>
 
         {/* <UploadButton
@@ -103,7 +106,7 @@ export function AddItemForm({ collection }: { collection: Collection }) {
           }}
         /> */}
 
-        <Input
+        {/* <Input
           type="file"
           onChange={async (e) => {
             const files = Array.from(e.target.files ?? []);
@@ -114,8 +117,8 @@ export function AddItemForm({ collection }: { collection: Collection }) {
             // Then start the upload
             // await startUpload(files);
           }}
-        />
-        {/* <MultiUploader /> */}
+        /> */}
+        <MultiUploader files={files} setFiles={setFiles} />
       </div>
 
       <div className="ml-auto flex gap-4">
