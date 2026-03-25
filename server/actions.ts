@@ -5,7 +5,13 @@ import { and, eq, inArray } from "drizzle-orm";
 import { UTApi } from "uploadthing/server";
 
 import { db } from "./db";
-import { collection, item, itemImage } from "./schema";
+import {
+  collection,
+  collectionStar,
+  item,
+  itemImage,
+  itemStar,
+} from "./schema";
 
 const utapi = new UTApi({});
 
@@ -58,6 +64,31 @@ export async function editCollection(formData: FormData, collectionId: string) {
     .returning({ name: collection.name });
 }
 
+export async function starCollection(collectionId: string, isStarred: boolean) {
+  if (!collectionId) {
+    throw new Error("Collection ID is required");
+  }
+
+  const user = await currentUser();
+
+  if (!user?.id) {
+    throw new Error("User not authenticated");
+  }
+
+  if (isStarred) {
+    await db.insert(collectionStar).values({ collectionId, userId: user.id });
+  } else {
+    await db
+      .delete(collectionStar)
+      .where(
+        and(
+          eq(collectionStar.collectionId, collectionId),
+          eq(collectionStar.userId, user.id),
+        ),
+      );
+  }
+}
+
 export async function createItem(formData: FormData, collectionId: string) {
   if (!collectionId) {
     throw new Error("Collection ID is required");
@@ -67,6 +98,16 @@ export async function createItem(formData: FormData, collectionId: string) {
 
   if (!user?.id) {
     throw new Error("User not authenticated");
+  }
+
+  const [ownedCollection] = await db
+    .select({ id: collection.id })
+    .from(collection)
+    .where(and(eq(collection.id, collectionId), eq(collection.userId, user.id)))
+    .limit(1);
+
+  if (!ownedCollection) {
+    throw new Error("Collection not found");
   }
 
   const name = formText(formData.get("name")) ?? "";
@@ -102,6 +143,30 @@ export async function editItem(
   const name = formText(formData.get("name")) ?? "";
   const description = formText(formData.get("description"));
 
+  if (!collectionId) {
+    throw new Error("Collection ID is required");
+  }
+
+  const [ownedItem] = await db
+    .select({ id: item.id })
+    .from(item)
+    .where(and(eq(item.id, itemId), eq(item.userId, user.id)))
+    .limit(1);
+
+  if (!ownedItem) {
+    return [];
+  }
+
+  const [targetCollection] = await db
+    .select({ id: collection.id })
+    .from(collection)
+    .where(and(eq(collection.id, collectionId), eq(collection.userId, user.id)))
+    .limit(1);
+
+  if (!targetCollection) {
+    throw new Error("Collection not found");
+  }
+
   const itemUpdate = () =>
     db
       .update(item)
@@ -135,6 +200,26 @@ export async function editItem(
   return itemUpdate();
 }
 
+export async function starItem(itemId: string, isStarred: boolean) {
+  if (!itemId) {
+    throw new Error("Item ID is required");
+  }
+
+  const user = await currentUser();
+
+  if (!user?.id) {
+    throw new Error("User not authenticated");
+  }
+
+  if (isStarred) {
+    await db.insert(itemStar).values({ itemId, userId: user.id });
+  } else {
+    await db
+      .delete(itemStar)
+      .where(and(eq(itemStar.itemId, itemId), eq(itemStar.userId, user.id)));
+  }
+}
+
 /** insert images to item_image table, assigning them to item by itemId */
 export async function insertItemImages(
   itemId: string,
@@ -152,6 +237,16 @@ export async function insertItemImages(
 
   if (!user?.id) {
     throw new Error("User not authenticated");
+  }
+
+  const [ownedItem] = await db
+    .select({ id: item.id })
+    .from(item)
+    .where(and(eq(item.id, itemId), eq(item.userId, user.id)))
+    .limit(1);
+
+  if (!ownedItem) {
+    throw new Error("Item not found");
   }
 
   await db.insert(itemImage).values(

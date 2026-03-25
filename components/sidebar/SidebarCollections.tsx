@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Collection } from "@/server/schema";
 import { cx } from "class-variance-authority";
+import { Star } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -31,6 +32,9 @@ export function SidebarCollections({
               })}
             >
               {collection.name}
+              {collection.stars && collection.stars.length > 0 && (
+                <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
+              )}
             </Link>
           </SidebarMenuButton>
 

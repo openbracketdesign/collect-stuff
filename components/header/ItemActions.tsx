@@ -7,15 +7,21 @@ import { StarButton } from "../button/StarButton";
 export function ItemActions({
   collectionId,
   itemId,
+  canEdit,
+  canStar,
+  starred,
 }: {
   collectionId: string;
   itemId: string;
+  canEdit: boolean;
+  canStar: boolean;
+  starred: boolean;
 }) {
   return (
-    <div className='flex gap-4'>
-      <EditButton collectionId={collectionId} itemId={itemId} />
+    <div className="flex gap-4">
+      {canEdit && <EditButton collectionId={collectionId} itemId={itemId} />}
 
-      <StarButton />
+      {canStar && <StarButton id={itemId} starred={starred} type="ITEM" />}
 
       <ShareOrCopyButton />
     </div>

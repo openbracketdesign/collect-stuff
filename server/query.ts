@@ -4,7 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 import { and, asc, desc, eq } from "drizzle-orm";
 
 import { db } from "./db";
-import { collection, item } from "./schema";
+import { collection, collectionStar, item, itemStar } from "./schema";
 
 export async function getMyCollectionList(
   orderBy: "date" | "name" = "date",
@@ -22,6 +22,12 @@ export async function getMyCollectionList(
   return db.query.collection.findMany({
     where: eq(collection.userId, userId),
     orderBy: [orderFn(orderColumn)],
+    with: {
+      stars: {
+        where: eq(collectionStar.userId, userId),
+        limit: 1,
+      },
+    },
   });
 }
 
@@ -48,6 +54,10 @@ export async function getMyCollectionsWithItems(
             limit: 4,
           },
         },
+      },
+      stars: {
+        where: eq(collectionStar.userId, userId),
+        limit: 1,
       },
     },
   });
@@ -118,6 +128,14 @@ export async function getCollectionById(id: string) {
           collection: { columns: { name: true } },
         },
       },
+      ...(userId
+        ? {
+            stars: {
+              where: eq(collectionStar.userId, userId),
+              limit: 1,
+            },
+          }
+        : {}),
     },
   });
 }
@@ -147,6 +165,8 @@ export async function getItemWithCollectionAndItemsById(id: string) {
     throw new Error("No item ID provided");
   }
 
+  const { userId } = await auth();
+
   return db.query.item.findFirst({
     where: eq(item.id, id),
     with: {
@@ -156,6 +176,14 @@ export async function getItemWithCollectionAndItemsById(id: string) {
         },
       },
       images: true,
+      ...(userId
+        ? {
+            stars: {
+              where: eq(itemStar.userId, userId),
+              limit: 1,
+            },
+          }
+        : {}),
     },
   });
 }

@@ -1,25 +1,37 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { EditButton } from "../button/EditButton";
 import ShareOrCopyButton from "../button/ShareOrCopyButton";
 import { StarButton } from "../button/StarButton";
 
-export function CollectionActions({ collectionId }: { collectionId: string }) {
+export function CollectionActions({
+  collectionId,
+  canEdit,
+  canStar,
+  starred,
+}: {
+  collectionId: string;
+  canEdit: boolean;
+  canStar: boolean;
+  starred: boolean;
+}) {
   return (
-    <div className='flex gap-4'>
+    <div className="flex gap-4">
       <Link href={`/collections/${collectionId}/add`}>
         <Button>
-          <span className='block md:hidden xl:block'>Add</span>
+          <span className="block md:hidden xl:block">Add</span>
           <Plus />
         </Button>
       </Link>
 
-      <EditButton collectionId={collectionId} />
+      {canEdit && <EditButton collectionId={collectionId} />}
 
-      <StarButton />
+      {canStar && (
+        <StarButton id={collectionId} type="COLLECTION" starred={starred} />
+      )}
 
       <ShareOrCopyButton />
     </div>

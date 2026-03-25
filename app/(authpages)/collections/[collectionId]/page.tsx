@@ -31,7 +31,7 @@ export default async function CollectionPage({
     );
   }
 
-  const user = await auth();
+  const { userId } = await auth();
 
   return (
     <>
@@ -39,8 +39,13 @@ export default async function CollectionPage({
         breadcrumbs={[{ name: "My Collections", href: "/collections" }]}
         title={collection.name}
       >
-        {user.userId === collection.userId && (
-          <CollectionActions collectionId={collectionId} />
+        {userId === collection.userId && (
+          <CollectionActions
+            collectionId={collectionId}
+            canEdit={userId === collection.userId}
+            canStar={!!userId}
+            starred={collection.stars?.length > 0}
+          />
         )}
       </PageTitle>
 
@@ -65,7 +70,7 @@ export default async function CollectionPage({
                 {collection.items?.length === 1 ? "item" : "items"}
               </h2>
 
-              {user.userId === collection.userId && (
+              {userId === collection.userId && (
                 <Link
                   href={`/collections/${collectionId}/add`}
                   className="ml-4"

@@ -53,7 +53,13 @@ export default async function ItemPage({
         ]}
       >
         {userId === item.userId && (
-          <ItemActions collectionId={collectionId} itemId={itemId} />
+          <ItemActions
+            collectionId={collectionId}
+            itemId={itemId}
+            canEdit={userId === item.userId}
+            canStar={!!userId}
+            starred={item.stars?.length > 0}
+          />
         )}
       </PageTitle>
 
@@ -75,8 +81,13 @@ export default async function ItemPage({
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
+
+              {item.images.length > 1 && (
+                <>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </>
+              )}
             </Carousel>
           )}
 

@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getMyCollectionsWithItems } from "@/server/query";
+import { Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { CreateCollectionButton } from "../button/CreateCollectionButton";
@@ -66,7 +67,10 @@ export const MyCollections = async () => {
                 </CardContent>
 
                 <CardHeader className="p-0">
-                  <CardTitle className="space-grotesk text-xl leading-tight group-hover:text-primary">
+                  <CardTitle className="space-grotesk text-xl leading-tight group-hover:text-primary flex items-center gap-2">
+                    {collection.stars && collection.stars.length > 0 && (
+                      <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
+                    )}
                     {`${collection.name.slice(0, 50)}${collection.name.length > 50 ? "..." : ""}`}
                   </CardTitle>
 

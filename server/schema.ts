@@ -31,8 +31,25 @@ export const itemImage = pgTable("item_image", {
   fileKey: text("fileKey").notNull(),
 });
 
+export const collectionStar = pgTable("collection_star", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  collectionId: uuid("collectionId")
+    .notNull()
+    .references(() => collection.id, { onDelete: "cascade" }),
+  userId: text("userId").notNull(),
+});
+
+export const itemStar = pgTable("item_star", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  itemId: uuid("itemId")
+    .notNull()
+    .references(() => item.id, { onDelete: "cascade" }),
+  userId: text("userId").notNull(),
+});
+
 export const collectionRelations = relations(collection, ({ many }) => ({
   items: many(item),
+  stars: many(collectionStar),
 }));
 
 export const itemRelations = relations(item, ({ one, many }) => ({
@@ -41,6 +58,7 @@ export const itemRelations = relations(item, ({ one, many }) => ({
     references: [collection.id],
   }),
   images: many(itemImage),
+  stars: many(itemStar),
 }));
 
 export const itemImageRelations = relations(itemImage, ({ one }) => ({
@@ -50,13 +68,29 @@ export const itemImageRelations = relations(itemImage, ({ one }) => ({
   }),
 }));
 
+export const collectionStarRelations = relations(collectionStar, ({ one }) => ({
+  collection: one(collection, {
+    fields: [collectionStar.collectionId],
+    references: [collection.id],
+  }),
+}));
+
+export const itemStarRelations = relations(itemStar, ({ one }) => ({
+  item: one(item, {
+    fields: [itemStar.itemId],
+    references: [item.id],
+  }),
+}));
+
 /** Row shape from `SELECT` / `db.query.*` on `collection` alone */
-export type Collection = typeof collection.$inferSelect;
+export type Collection = typeof collection.$inferSelect & {
+  stars?: { id: string }[];
+};
 /** Values accepted by `db.insert(collection)` */
-export type NewCollection = typeof collection.$inferInsert;
+// export type NewCollection = typeof collection.$inferInsert;
 
 export type Item = typeof item.$inferSelect;
-export type NewItem = typeof item.$inferInsert;
+// export type NewItem = typeof item.$inferInsert;
 
 export type ItemImage = typeof itemImage.$inferSelect;
 
@@ -70,14 +104,15 @@ export type CollectionWithItemsAndImages = Collection & {
 export type ItemWithImages = Item & {
   images: ItemImage[];
   collection: { name: string };
+  stars?: { id: string }[];
 };
 
 /** Matches `with: { collection: true }` on item queries */
-export type ItemWithCollection = Item & { collection: Collection };
-export type ItemWithCollectionAndImages = ItemWithCollection & {
-  images: ItemImage[];
-};
+// export type ItemWithCollection = Item & { collection: Collection };
+// export type ItemWithCollectionAndImages = ItemWithCollection & {
+//   images: ItemImage[];
+// };
 
-export type ItemWithCollectionAndItems = ItemWithCollectionAndImages & {
-  items: Item[];
-};
+// export type ItemWithCollectionAndItems = ItemWithCollectionAndImages & {
+//   items: Item[];
+// };
