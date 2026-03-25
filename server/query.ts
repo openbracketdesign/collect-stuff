@@ -129,9 +129,11 @@ export async function getCollectionById(id: string) {
           images: {
             limit: 4,
           },
-          collection: { columns: { name: true } },
+          collection: { columns: { name: true }, with: { properties: true } },
+          properties: true,
         },
       },
+      properties: true,
       ...(userId
         ? {
             stars: {
