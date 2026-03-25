@@ -24,27 +24,33 @@ export function AddItemForm({ collection }: { collection: Collection }) {
       const [newItem] = await createItem(formData, collection.id);
 
       if (!newItem?.id) {
-        toast("Failed to add item :(");
+        toast("Sorry, we couldn't create the item. Please try again.");
         throw new Error("Failed to create item");
       }
 
-      toast(
-        `"${newItem.name}" added! Uploading ${files.length > 1 ? "images" : "image"}...`,
-      );
-
-      /** TODO: only upload if different files and files exist */
-      const imageUrls = await startUpload(files);
-
-      if (imageUrls) {
-        await insertItemImages(
-          newItem.id,
-          imageUrls.map((image) => ({ url: image.ufsUrl, fileKey: image.key })),
+      if (files.length > 0) {
+        toast(
+          `"${newItem.name}" added! Uploading ${files.length > 1 ? "images" : "image"}...`,
         );
+
+        const imageUrls = await startUpload(files);
+
+        if (imageUrls) {
+          await insertItemImages(
+            newItem.id,
+            imageUrls.map((image) => ({
+              url: image.ufsUrl,
+              fileKey: image.key,
+            })),
+          );
+        }
+      } else {
+        toast(`"${newItem.name}" added!`);
       }
 
       router.replace(`/collections/${collection.id}/${newItem.id}`);
     } catch (error) {
-      toast("Failed to add item :(");
+      toast("Sorry, we couldn't create the item. Please try again.");
     }
   };
 
@@ -53,7 +59,7 @@ export function AddItemForm({ collection }: { collection: Collection }) {
       try {
         if (!uploadResult?.[0]?.ufsUrl) {
           throw new Error(
-            "Couldn't upload image, but the rest of your data was saved. Try again later.",
+            `Couldn't upload ${files.length > 1 ? "images" : "image"}, but the rest of your data was saved. Try again later.`,
           );
         }
 
@@ -61,7 +67,7 @@ export function AddItemForm({ collection }: { collection: Collection }) {
       } catch (e) {
         console.error(e);
         toast(
-          "Couldn't upload image, but the rest of your data was saved. Try again later.",
+          `Couldn't upload ${files.length > 1 ? "images" : "image"}, but the rest of your data was saved. Try again later.`,
         );
       }
     },

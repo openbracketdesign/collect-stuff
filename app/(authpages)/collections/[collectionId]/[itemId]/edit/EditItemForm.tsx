@@ -1,67 +1,114 @@
 "use client";
 
-import { ArrowLeftCircle, Check } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-// import { useUploadThing } from "~/app/api/uploadthing/hooks";
+import { useUploadThing } from "@/app/api/uploadthing/hooks";
+import { MultiUploader } from "@/components/MultiUploader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { editItem } from "@/server/actions";
-import { type Item } from "@/server/schema";
+import {
+  deleteRemovedImages,
+  editItem,
+  insertItemImages,
+} from "@/server/actions";
+import { type ItemWithImages } from "@/server/schema";
+import { cx } from "class-variance-authority";
+import { ArrowLeftCircle, Check, Trash, Undo2 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
-export function EditItemForm({ item }: { item: Item }) {
-  // const [files, setFiles] = useState<File[]>([]);
+export function EditItemForm({ item }: { item: ItemWithImages }) {
+  const [files, setFiles] = useState<File[]>([]);
+  const [deletedImageFileKeys, setDeletedImageFileKeys] = useState<string[]>(
+    [],
+  );
 
   const router = useRouter();
 
-  const doEditItem = async (formData: FormData) => {
-    try {
-      const updatedItem = await editItem(
-        formData,
-        item.id,
-        // item.collection.collectionProperties.map((property) => property.id),
+  const toggleDeletedImage = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    imageFileKey: string,
+  ) => {
+    event.preventDefault();
+
+    if (deletedImageFileKeys.includes(imageFileKey)) {
+      setDeletedImageFileKeys(
+        deletedImageFileKeys.filter((key) => key !== imageFileKey),
       );
-      toast(
-        `"${updatedItem?.[0]?.name}" updated successfully. Uploading image...`,
-      );
-
-      router.replace(`/collections/${item.collectionId}/${item.id}`);
-
-      // TODO: only upload if different files and files exist
-      // await startUpload(files);
-
-      // router.refresh();
-    } catch (error) {
-      toast("Failed to update item :(");
+    } else {
+      setDeletedImageFileKeys([...deletedImageFileKeys, imageFileKey]);
     }
   };
 
-  // const { startUpload } = useUploadThing("imageUploader", {
-  //   onClientUploadComplete: async (uploadResult) => {
-  //     try {
-  //       if (!uploadResult?.[0]?.url) {
-  //         throw new Error(
-  //           "Couldn't upload image, but the rest of your data was saved. Try again later.",
-  //         );
-  //       }
+  const doEditItem = async (formData: FormData) => {
+    try {
+      const [updatedItem] = await editItem(
+        formData,
+        item.id,
+        deletedImageFileKeys,
+        // item.collection.collectionProperties.map((property) => property.id),
+      );
 
-  //       await addItemImageSubmit({
-  //         itemId: item.id,
-  //         image: uploadResult[0].url,
-  //       });
+      if (!updatedItem) {
+        toast("Sorry, we couldn't update the item. Please try again.");
+        throw new Error("Failed to update item");
+      }
 
-  //       toast(`Image uploaded successfully.`);
-  //     } catch (e) {
-  //       console.error(e);
-  //       toast(
-  //         "Couldn't upload image, but the rest of your data was saved. Try again later.",
-  //       );
-  //     }
-  //   },
-  // });
+      if (files.length > 0) {
+        toast(
+          `"${updatedItem.name}" updated! Uploading ${files.length > 1 ? "images" : "image"}...`,
+        );
+
+        const imageUrls = await startUpload(files);
+
+        if (imageUrls) {
+          await insertItemImages(
+            item.id,
+            imageUrls.map((image) => ({
+              url: image.ufsUrl,
+              fileKey: image.key,
+            })),
+          );
+        }
+      } else {
+        toast(`"${updatedItem.name}" updated!`);
+      }
+
+      if (deletedImageFileKeys.length > 0) {
+        // Using 'void' here indicates we're intentionally discarding the returned Promise,
+        // so we fire-and-forget the async operation (deleteRemovedImages). This ensures
+        // the function runs asynchronously and any errors are logged via .catch, but
+        // we don't await or block on its completion.
+        void deleteRemovedImages(deletedImageFileKeys).catch(console.error);
+      }
+
+      router.replace(`/collections/${item.collectionId}/${item.id}`);
+    } catch (error) {
+      toast("Sorry, we couldn't update the item. Please try again.");
+    }
+  };
+
+  const { startUpload } = useUploadThing("imageUploader", {
+    onClientUploadComplete: async (uploadResult) => {
+      try {
+        if (!uploadResult?.[0]?.ufsUrl) {
+          throw new Error(
+            `Couldn't upload ${files.length > 1 ? "images" : "image"}, but the rest of your data was saved. Try again later.`,
+          );
+        }
+
+        toast(`Image uploaded successfully.`);
+      } catch (e) {
+        console.error(e);
+        toast(
+          `Couldn't upload ${files.length > 1 ? "images" : "image"}, but the rest of your data was saved. Try again later.`,
+        );
+      }
+    },
+  });
 
   // TODO: use shadcn <Form> component
 
@@ -94,35 +141,47 @@ export function EditItemForm({ item }: { item: Item }) {
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:gap-2">
-        <Label htmlFor="image" className="flex w-40 items-start sm:pt-2">
-          Image (max 4MB)
+        <Label htmlFor="image" className="flex sm:w-40 items-start sm:pt-2">
+          Images (max 10, max 4MB each)
         </Label>
 
-        {/* <Input
-          type="file"
-          onChange={async (e) => {
-            const files = Array.from(e.target.files ?? []);
-            setFiles(files);
+        <div className="flex flex-col gap-4 w-full">
+          <div className="grid grid-cols-2 gap-4">
+            {item.images.map((image) => (
+              <div key={image.id} className="flex items-center gap-2">
+                <Image
+                  key={image.id}
+                  src={image.url}
+                  alt={item.name}
+                  width={100}
+                  height={100}
+                  className={cx("h-[100px] rounded-md border p-1 w-[100px]", {
+                    "opacity-50": deletedImageFileKeys.includes(image.fileKey),
+                  })}
+                  style={{ objectFit: "contain" }}
+                />
 
-            // Do something with files
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={(event) => toggleDeletedImage(event, image.fileKey)}
+                  className={cx({
+                    "bg-red-500 text-white hover:bg-green-500 hover:text-white":
+                      deletedImageFileKeys.includes(image.fileKey),
+                  })}
+                >
+                  {deletedImageFileKeys.includes(image.fileKey) ? (
+                    <Undo2 className="h-4 w-4" />
+                  ) : (
+                    <Trash className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            ))}
+          </div>
 
-            // Then start the upload
-            // await startUpload(files);
-          }}
-        /> */}
-
-        {/* <UploadButton
-          endpoint="imageUploader"
-          onClientUploadComplete={(res) => {
-            console.log(`onClientUploadComplete`, res);
-            // alert("Upload Completed");
-          }}
-          onUploadBegin={() => {
-            console.log("upload begin");
-          }}
-          config={{ appendOnPaste: true, mode: "manual" }}
-        /> */}
-        {/* <MultiUploader /> */}
+          <MultiUploader files={files} setFiles={setFiles} />
+        </div>
       </div>
 
       {/* {item.collection.collectionProperties.map((property, i) => (

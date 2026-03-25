@@ -9,7 +9,8 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 // import { type CollectionWithItemProperties } from "~/types";
-import { CollectionWithItems } from "@/server/schema";
+import { CollectionWithItemsAndImages } from "@/server/schema";
+import Image from "next/image";
 import { buildColumns } from "./Columns";
 import { DataTable } from "./DataTable";
 
@@ -17,7 +18,7 @@ export function CollectionItems({
   collection,
   view,
 }: {
-  collection: CollectionWithItems;
+  collection: CollectionWithItemsAndImages;
   view?: "grid" | "table";
 }) {
   if (view === "table") {
@@ -61,14 +62,16 @@ export function CollectionItems({
         <Link key={item.id} href={`/collections/${collection.id}/${item.id}`}>
           <Card className="group grid h-full grid-cols-[2fr_3fr] gap-4 p-4 hover:border-primary-300">
             <CardContent className="p-0">
-              {/* <Image
-                src={item.image}
-                alt={item.name}
-                className="max-h-[140px] w-full rounded md:w-[140px]"
-                style={{ objectFit: "contain" }}
-                height={300}
-                width={300}
-              /> */}
+              {item.images[0]?.url && (
+                <Image
+                  src={item.images[0].url}
+                  alt={item.name}
+                  className="max-h-[140px] w-full rounded md:w-[140px]"
+                  style={{ objectFit: "contain" }}
+                  height={300}
+                  width={300}
+                />
+              )}
             </CardContent>
 
             <CardHeader className="p-0">
