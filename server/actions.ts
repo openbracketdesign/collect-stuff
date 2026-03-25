@@ -98,6 +98,7 @@ export async function editItem(
     throw new Error("User not authenticated");
   }
 
+  const collectionId = formText(formData.get("collectionId")) ?? "";
   const name = formText(formData.get("name")) ?? "";
   const description = formText(formData.get("description"));
 
@@ -106,11 +107,12 @@ export async function editItem(
       .update(item)
       .set({
         name,
+        collectionId,
         description,
         modified: new Date(),
       })
       .where(and(eq(item.id, itemId), eq(item.userId, user.id)))
-      .returning({ name: item.name });
+      .returning({ name: item.name, collectionId: item.collectionId });
 
   // db.batch runs statements in one Neon transaction.
   if (deletedImageFileKeys.length > 0) {

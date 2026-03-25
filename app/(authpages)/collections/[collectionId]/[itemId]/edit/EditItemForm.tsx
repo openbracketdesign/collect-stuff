@@ -5,13 +5,21 @@ import { MultiUploader } from "@/components/MultiUploader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
   deleteRemovedImages,
   editItem,
   insertItemImages,
 } from "@/server/actions";
-import { type ItemWithImages } from "@/server/schema";
+import { Collection, type ItemWithImages } from "@/server/schema";
 import { cx } from "class-variance-authority";
 import { ArrowLeftCircle, Check, Trash, Undo2 } from "lucide-react";
 import Image from "next/image";
@@ -20,7 +28,13 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export function EditItemForm({ item }: { item: ItemWithImages }) {
+export function EditItemForm({
+  item,
+  collections,
+}: {
+  item: ItemWithImages;
+  collections: Collection[];
+}) {
   const [files, setFiles] = useState<File[]>([]);
   const [deletedImageFileKeys, setDeletedImageFileKeys] = useState<string[]>(
     [],
@@ -85,7 +99,7 @@ export function EditItemForm({ item }: { item: ItemWithImages }) {
         void deleteRemovedImages(deletedImageFileKeys).catch(console.error);
       }
 
-      router.replace(`/collections/${item.collectionId}/${item.id}`);
+      router.replace(`/collections/${updatedItem.collectionId}/${item.id}`);
     } catch (error) {
       toast("Sorry, we couldn't update the item. Please try again.");
     }
@@ -117,8 +131,37 @@ export function EditItemForm({ item }: { item: ItemWithImages }) {
       action={doEditItem}
       className="flex max-w-[100%] flex-col gap-4 md:max-w-[600px]"
     >
-      <div className="mb-3 flex flex-col gap-4 sm:flex-row sm:gap-2">
-        <Label htmlFor="name" className="flex w-40 items-center">
+      <div className="mb-3 flex flex-col gap-2">
+        <Label
+          htmlFor="collectionId"
+          className="flex items-center text-primary"
+        >
+          Collection
+        </Label>
+        <Select name="collectionId" defaultValue={item.collectionId}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select a collection" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {collections.map((collection) => (
+                <SelectItem
+                  key={collection.id}
+                  value={collection.id}
+                  className={cx({
+                    "text-primary": collection.id === item.collectionId,
+                  })}
+                >
+                  {collection.name}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="mb-3 flex flex-col gap-2">
+        <Label htmlFor="name" className="flex items-center text-primary">
           Name
         </Label>
         <Input
@@ -129,8 +172,8 @@ export function EditItemForm({ item }: { item: ItemWithImages }) {
         />
       </div>
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:gap-2">
-        <Label htmlFor="description" className="flex w-40 items-start sm:pt-2">
+      <div className="mb-3 flex flex-col gap-2">
+        <Label htmlFor="description" className="flex items-center text-primary">
           Description
         </Label>
         <Textarea
@@ -140,8 +183,8 @@ export function EditItemForm({ item }: { item: ItemWithImages }) {
         />
       </div>
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:gap-2">
-        <Label htmlFor="image" className="flex sm:w-40 items-start sm:pt-2">
+      <div className="mb-3 flex flex-col gap-2">
+        <Label htmlFor="image" className="flex items-center text-primary">
           Images (max 10, max 4MB each)
         </Label>
 

@@ -136,6 +136,7 @@ export async function getAuthedItemById(id: string) {
     where: and(eq(item.id, id), eq(item.userId, userId)),
     with: {
       images: true,
+      collection: { columns: { name: true } },
     },
   });
 }

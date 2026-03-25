@@ -67,7 +67,10 @@ export type CollectionWithItemsAndImages = Collection & {
 };
 
 /** Matches `with: { images: true }` on item queries */
-export type ItemWithImages = Item & { images: ItemImage[] };
+export type ItemWithImages = Item & {
+  images: ItemImage[];
+  collection: { name: string };
+};
 
 /** Matches `with: { collection: true }` on item queries */
 export type ItemWithCollection = Item & { collection: Collection };

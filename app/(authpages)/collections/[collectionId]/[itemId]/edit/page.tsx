@@ -1,6 +1,6 @@
 import { PageTitle } from "@/components/header/PageTitle";
 import PageContent from "@/components/PageContent";
-import { getAuthedItemById } from "@/server/query";
+import { getAuthedItemById, getMyCollectionList } from "@/server/query";
 import { EditItemForm } from "./EditItemForm";
 
 export default async function EditItemPage({
@@ -10,6 +10,8 @@ export default async function EditItemPage({
 }) {
   const { itemId } = await params;
   const item = await getAuthedItemById(itemId);
+
+  const collections = await getMyCollectionList("name", "ASC");
 
   if (!item) {
     return (
@@ -30,7 +32,7 @@ export default async function EditItemPage({
     <>
       <PageTitle title="Edit item" breadcrumbs={[]} />
       <PageContent>
-        <EditItemForm item={item} />
+        <EditItemForm item={item} collections={collections} />
       </PageContent>
     </>
   );
