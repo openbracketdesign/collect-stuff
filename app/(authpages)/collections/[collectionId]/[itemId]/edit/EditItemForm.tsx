@@ -1,6 +1,5 @@
 "use client";
 
-import { useUploadThing } from "@/app/api/uploadthing/hooks";
 import { MultiUploader } from "@/components/MultiUploader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useUpload } from "@/hooks/useUpload";
 import {
   deleteRemovedImages,
   editItem,
@@ -41,6 +41,8 @@ export function EditItemForm({
   );
 
   const router = useRouter();
+
+  const { startUpload } = useUpload(files);
 
   const toggleDeletedImage = (
     event: React.MouseEvent<HTMLButtonElement>,
@@ -104,25 +106,6 @@ export function EditItemForm({
       toast("Sorry, we couldn't update the item. Please try again.");
     }
   };
-
-  const { startUpload } = useUploadThing("imageUploader", {
-    onClientUploadComplete: async (uploadResult) => {
-      try {
-        if (!uploadResult?.[0]?.ufsUrl) {
-          throw new Error(
-            `Couldn't upload ${files.length > 1 ? "images" : "image"}, but the rest of your data was saved. Try again later.`,
-          );
-        }
-
-        toast(`Image uploaded successfully.`);
-      } catch (e) {
-        console.error(e);
-        toast(
-          `Couldn't upload ${files.length > 1 ? "images" : "image"}, but the rest of your data was saved. Try again later.`,
-        );
-      }
-    },
-  });
 
   // TODO: use shadcn <Form> component
 

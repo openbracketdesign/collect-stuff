@@ -2,6 +2,13 @@ import { CollectionItemsList } from "@/components/collection/CollectionItemsList
 import { ItemActions } from "@/components/header/ItemActions";
 import { PageTitle } from "@/components/header/PageTitle";
 import PageContent from "@/components/PageContent";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import { getItemWithCollectionAndItemsById } from "@/server/query";
 import { auth } from "@clerk/nextjs/server";
 import { cx } from "class-variance-authority";
@@ -51,24 +58,29 @@ export default async function ItemPage({
       </PageTitle>
 
       <PageContent sidePanel>
-        <div className="gap-6 py-6 xl:grid xl:grid-cols-[280px_1fr] 2xl:grid-cols-[340px_1fr]">
+        <div className="py-6">
           {item.images.length > 0 && (
-            <div className="flex flex-wrap gap-4">
-              {item.images.map((image) => (
-                <Image
-                  key={image.id}
-                  className="max-h-[300px] w-full rounded-md border p-4 lg:max-h-[440px] lg:max-w-[340px]"
-                  src={image.url}
-                  alt={item.name}
-                  style={{ objectFit: "contain" }}
-                  height={300}
-                  width={300}
-                />
-              ))}
-            </div>
+            <Carousel className="h-[300px] w-full lg:h-[440px]">
+              <CarouselContent>
+                {item.images.map((image) => (
+                  <CarouselItem key={image.id}>
+                    <Image
+                      className="h-[300px] w-full rounded-md border p-4 lg:h-[440px]"
+                      src={image.url}
+                      alt={item.name}
+                      style={{ objectFit: "contain" }}
+                      height={300}
+                      width={300}
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
           )}
 
-          <ul className="mt-6 space-y-4 xl:mt-0">
+          <ul className="mt-6 space-y-4">
             {/* {item.collection.collectionProperties.map((prop, i) => (
                 <li key={i}>
                   <span className="mr-2 text-primary">{prop.name}</span>{" "}
