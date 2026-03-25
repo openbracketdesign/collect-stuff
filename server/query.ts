@@ -27,6 +27,7 @@ export async function getMyCollectionList(
         where: eq(collectionStar.userId, userId),
         limit: 1,
       },
+      properties: true,
     },
   });
 }
@@ -103,6 +104,9 @@ export async function getAuthedCollectionById(id: string) {
 
   return db.query.collection.findFirst({
     where: and(eq(collection.id, id), eq(collection.userId, userId)),
+    with: {
+      properties: true,
+    },
   });
 }
 
@@ -155,7 +159,8 @@ export async function getAuthedItemById(id: string) {
     where: and(eq(item.id, id), eq(item.userId, userId)),
     with: {
       images: true,
-      collection: { columns: { name: true } },
+      collection: { columns: { name: true }, with: { properties: true } },
+      properties: true,
     },
   });
 }
@@ -173,6 +178,7 @@ export async function getItemWithCollectionAndItemsById(id: string) {
       collection: {
         with: {
           items: { orderBy: [asc(item.name)] },
+          properties: true,
         },
       },
       images: true,
@@ -184,6 +190,7 @@ export async function getItemWithCollectionAndItemsById(id: string) {
             },
           }
         : {}),
+      properties: true,
     },
   });
 }

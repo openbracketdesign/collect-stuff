@@ -92,13 +92,13 @@ export default async function ItemPage({
           )}
 
           <ul className="mt-6 space-y-4">
-            {/* {item.collection.collectionProperties.map((prop, i) => (
-                <li key={i}>
-                  <span className="mr-2 text-primary">{prop.name}</span>{" "}
-                  {item.itemProperties.find((p) => p.propertyId === prop.id)
-                    ?.value ?? "-"}
-                </li>
-              ))} */}
+            {item.collection.properties.map((property, i) => (
+              <li key={i}>
+                <span className="mr-2 text-primary">{property.name}</span>{" "}
+                {item.properties.find((p) => p.propertyId === property.id)
+                  ?.value ?? "--"}
+              </li>
+            ))}
 
             {/* <li>
                 <span className="mr-2 text-primary">Added</span>{" "}

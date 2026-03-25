@@ -210,17 +210,17 @@ export function EditItemForm({
         </div>
       </div>
 
-      {/* {item.collection.collectionProperties.map((property, i) => (
+      {item.collection.properties.map((property) => (
         <Input
-          key={i}
+          key={property.id}
           type="text"
           name={property.id}
           placeholder={property.name}
           defaultValue={
-            item.itemProperties.find((p) => p.propertyId === property.id)?.value
+            item.properties.find((p) => p.propertyId === property.id)?.value
           }
         />
-      ))} */}
+      ))}
 
       <div className="ml-auto flex gap-4">
         <Link

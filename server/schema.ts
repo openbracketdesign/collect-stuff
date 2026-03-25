@@ -31,6 +31,25 @@ export const itemImage = pgTable("item_image", {
   fileKey: text("fileKey").notNull(),
 });
 
+export const collectionProperty = pgTable("collection_property", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  collectionId: uuid("collectionId")
+    .notNull()
+    .references(() => collection.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+});
+
+export const itemProperty = pgTable("item_property", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  itemId: uuid("itemId")
+    .notNull()
+    .references(() => item.id, { onDelete: "cascade" }),
+  propertyId: uuid("propertyId")
+    .notNull()
+    .references(() => collectionProperty.id, { onDelete: "cascade" }),
+  value: text("value").notNull(),
+});
+
 export const collectionStar = pgTable("collection_star", {
   id: uuid("id").primaryKey().defaultRandom(),
   collectionId: uuid("collectionId")
@@ -50,6 +69,7 @@ export const itemStar = pgTable("item_star", {
 export const collectionRelations = relations(collection, ({ many }) => ({
   items: many(item),
   stars: many(collectionStar),
+  properties: many(collectionProperty),
 }));
 
 export const itemRelations = relations(item, ({ one, many }) => ({
@@ -59,12 +79,34 @@ export const itemRelations = relations(item, ({ one, many }) => ({
   }),
   images: many(itemImage),
   stars: many(itemStar),
+  properties: many(itemProperty),
 }));
 
 export const itemImageRelations = relations(itemImage, ({ one }) => ({
   item: one(item, {
     fields: [itemImage.itemId],
     references: [item.id],
+  }),
+}));
+
+export const collectionPropertyRelations = relations(
+  collectionProperty,
+  ({ one }) => ({
+    collection: one(collection, {
+      fields: [collectionProperty.collectionId],
+      references: [collection.id],
+    }),
+  }),
+);
+
+export const itemPropertyRelations = relations(itemProperty, ({ one }) => ({
+  item: one(item, {
+    fields: [itemProperty.itemId],
+    references: [item.id],
+  }),
+  property: one(collectionProperty, {
+    fields: [itemProperty.propertyId],
+    references: [collectionProperty.id],
   }),
 }));
 
@@ -85,6 +127,7 @@ export const itemStarRelations = relations(itemStar, ({ one }) => ({
 /** Row shape from `SELECT` / `db.query.*` on `collection` alone */
 export type Collection = typeof collection.$inferSelect & {
   stars?: { id: string }[];
+  properties: CollectionProperty[];
 };
 /** Values accepted by `db.insert(collection)` */
 // export type NewCollection = typeof collection.$inferInsert;
@@ -103,9 +146,13 @@ export type CollectionWithItemsAndImages = Collection & {
 /** Matches `with: { images: true }` on item queries */
 export type ItemWithImages = Item & {
   images: ItemImage[];
-  collection: { name: string };
+  collection: { name: string; properties: CollectionProperty[] };
   stars?: { id: string }[];
+  properties: ItemProperty[];
 };
+
+export type CollectionProperty = typeof collectionProperty.$inferSelect;
+export type ItemProperty = typeof itemProperty.$inferSelect;
 
 /** Matches `with: { collection: true }` on item queries */
 // export type ItemWithCollection = Item & { collection: Collection };

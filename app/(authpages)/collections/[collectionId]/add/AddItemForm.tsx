@@ -81,34 +81,17 @@ export function AddItemForm({ collection }: { collection: Collection }) {
         <Label htmlFor="image" className="flex w-40 items-start sm:pt-2">
           Images (max 10, max 4MB each)
         </Label>
-
-        {/* <UploadButton
-          endpoint="imageUploader"
-          onClientUploadComplete={(res) => {
-            // Do something with the response
-            console.log("Files: ", res);
-            alert("uploaded successfully!");
-          }}
-          onUploadError={(error: Error) => {
-            // Do something with the error.
-            alert(`ERROR! ${error.message}`);
-          }}
-        /> */}
-
-        {/* <Input
-          type="file"
-          onChange={async (e) => {
-            const files = Array.from(e.target.files ?? []);
-            setFiles(files);
-
-            // Do something with files
-
-            // Then start the upload
-            // await startUpload(files);
-          }}
-        /> */}
         <MultiUploader files={files} setFiles={setFiles} />
       </div>
+
+      {collection.properties.map((property) => (
+        <Input
+          key={property.id}
+          type="text"
+          name={property.id}
+          placeholder={property.name}
+        />
+      ))}
 
       <div className="ml-auto flex gap-4">
         <Link href={`/collections/${collection.id}`} className="inline-block">
