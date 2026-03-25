@@ -115,6 +115,7 @@ export async function getCollectionById(id: string) {
           images: {
             limit: 4,
           },
+          collection: { columns: { name: true } },
         },
       },
     },
