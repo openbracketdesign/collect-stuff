@@ -66,7 +66,7 @@ export default async function ItemPage({
       <PageContent sidePanel>
         <div className="py-6">
           {item.images.length > 0 && (
-            <Carousel className="h-[300px] w-full lg:h-[440px]">
+            <Carousel className="h-[300px] w-full lg:h-[440px] mb-6">
               <CarouselContent>
                 {item.images.map((image) => (
                   <CarouselItem key={image.id}>
@@ -91,7 +91,15 @@ export default async function ItemPage({
             </Carousel>
           )}
 
-          <ul className="mt-6 space-y-4">
+          <ul className="space-y-4">
+            <li
+              className={cx("max-w-[70ch] text-lg", {
+                "text-gray-400": !item.description,
+              })}
+            >
+              {item.description ?? "No description"}
+            </li>
+
             {item.collection.properties.map((property, i) => (
               <li key={i}>
                 <span className="mr-2 text-primary">{property.name}</span>{" "}
@@ -100,17 +108,9 @@ export default async function ItemPage({
               </li>
             ))}
 
-            {/* <li>
-                <span className="mr-2 text-primary">Added</span>{" "}
-                {item.createdAt.toDateString()}
-              </li> */}
-
-            <li
-              className={cx("max-w-[70ch] text-lg", {
-                "text-gray-400": !item.description,
-              })}
-            >
-              {item.description ?? "No description"}
+            <li>
+              <span className="mr-2 text-primary">Added</span>{" "}
+              {item.date.toDateString()}
             </li>
           </ul>
         </div>

@@ -8,6 +8,20 @@
       "when": 1774360285505,
       "tag": "0000_easy_mandroid",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1774525470482,
+      "tag": "0001_item_property_item_property_unique",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1774525684736,
+      "tag": "0002_item_property_unique_index",
+      "breakpoints": true
     }
   ]
 }

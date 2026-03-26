@@ -40,7 +40,7 @@ export default function CopyOrShareButton() {
           setCopied(true);
           setTimeout(() => setCopied(false), 2000);
         });
-        toast("Copied link to clipboard!");
+        toast.info("Copied link to clipboard!");
       } catch (error) {
         console.error("Error copying to clipboard:", error);
       }

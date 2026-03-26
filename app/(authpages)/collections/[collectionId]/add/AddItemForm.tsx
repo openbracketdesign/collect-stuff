@@ -22,19 +22,33 @@ export function AddItemForm({ collection }: { collection: Collection }) {
   const { startUpload } = useUpload(files);
 
   const addItemToCollection = async (formData: FormData) => {
+    const collectionPropertyIds = collection.properties.map(
+      (property) => property.id,
+    );
+
+    let newItem: Awaited<ReturnType<typeof createItem>>;
     try {
-      const [newItem] = await createItem(formData, collection.id);
+      newItem = await createItem(
+        formData,
+        collection.id,
+        collectionPropertyIds,
+      );
+    } catch {
+      toast.error("Sorry, we couldn't create the item. Please try again.");
+      return;
+    }
 
-      if (!newItem?.id) {
-        toast("Sorry, we couldn't create the item. Please try again.");
-        throw new Error("Failed to create item");
-      }
+    if (!newItem?.id) {
+      toast.error("Sorry, we couldn't create the item. Please try again.");
+      return;
+    }
 
-      if (files.length > 0) {
-        toast(
-          `"${newItem.name}" added! Uploading ${files.length > 1 ? "images" : "image"}...`,
-        );
+    if (files.length > 0) {
+      toast.success(
+        `"${newItem.name}" added! Uploading ${files.length > 1 ? "images" : "image"}...`,
+      );
 
+      try {
         const imageUrls = await startUpload(files);
 
         if (imageUrls) {
@@ -46,14 +60,16 @@ export function AddItemForm({ collection }: { collection: Collection }) {
             })),
           );
         }
-      } else {
-        toast(`"${newItem.name}" added!`);
+      } catch {
+        toast.error(
+          `Your item was saved, but the ${files.length > 1 ? "images" : "image"} could not be added. You can add them from the item page.`,
+        );
       }
-
-      router.replace(`/collections/${collection.id}/${newItem.id}`);
-    } catch (error) {
-      toast("Sorry, we couldn't create the item. Please try again.");
+    } else {
+      toast.success(`"${newItem.name}" added!`);
     }
+
+    router.replace(`/collections/${collection.id}/${newItem.id}`);
   };
 
   // TODO: use shadcn <Form> component

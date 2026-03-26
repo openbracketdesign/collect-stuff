@@ -19,14 +19,18 @@ export function EditCollectionForm({ collection }: { collection: Collection }) {
       const updatedCollection = await editCollection(formData, collection.id);
 
       if (updatedCollection?.[0]?.name) {
-        toast(`"${updatedCollection[0].name}" updated successfully.`);
+        toast.success(`"${updatedCollection[0].name}" updated!`);
         router.replace(`/collections/${collection.id}`);
       } else {
-        toast("Failed to update collection :(");
+        toast.error(
+          "Sorry, we couldn't update the collection. Please try again.",
+        );
       }
     } catch (error) {
       console.error(error);
-      toast("Failed to update collection :(");
+      toast.error(
+        "Sorry, we couldn't update the collection. Please try again.",
+      );
     }
   };
 

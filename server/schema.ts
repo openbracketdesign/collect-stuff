@@ -1,5 +1,11 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 export const collection = pgTable("collection", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -39,16 +45,25 @@ export const collectionProperty = pgTable("collection_property", {
   name: text("name").notNull(),
 });
 
-export const itemProperty = pgTable("item_property", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  itemId: uuid("itemId")
-    .notNull()
-    .references(() => item.id, { onDelete: "cascade" }),
-  propertyId: uuid("propertyId")
-    .notNull()
-    .references(() => collectionProperty.id, { onDelete: "cascade" }),
-  value: text("value").notNull(),
-});
+export const itemProperty = pgTable(
+  "item_property",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    itemId: uuid("itemId")
+      .notNull()
+      .references(() => item.id, { onDelete: "cascade" }),
+    propertyId: uuid("propertyId")
+      .notNull()
+      .references(() => collectionProperty.id, { onDelete: "cascade" }),
+    value: text("value"),
+  },
+  (table) => [
+    uniqueIndex("item_property_itemId_propertyId_unique").on(
+      table.itemId,
+      table.propertyId,
+    ),
+  ],
+);
 
 export const collectionStar = pgTable("collection_star", {
   id: uuid("id").primaryKey().defaultRandom(),

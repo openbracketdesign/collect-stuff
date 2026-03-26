@@ -1,7 +1,7 @@
 "use server";
 
 import { currentUser } from "@clerk/nextjs/server";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { UTApi } from "uploadthing/server";
 
 import { db } from "./db";
@@ -10,6 +10,7 @@ import {
   collectionStar,
   item,
   itemImage,
+  itemProperty,
   itemStar,
 } from "./schema";
 
@@ -36,7 +37,7 @@ export async function createCollection(formData: FormData) {
       description,
       userId: user.id,
     })
-    .returning({ id: collection.id });
+    .returning({ id: collection.id, name: collection.name });
 }
 
 export async function editCollection(formData: FormData, collectionId: string) {
@@ -89,7 +90,11 @@ export async function starCollection(collectionId: string, isStarred: boolean) {
   }
 }
 
-export async function createItem(formData: FormData, collectionId: string) {
+export async function createItem(
+  formData: FormData,
+  collectionId: string,
+  propertyIds: string[],
+) {
   if (!collectionId) {
     throw new Error("Collection ID is required");
   }
@@ -112,22 +117,44 @@ export async function createItem(formData: FormData, collectionId: string) {
 
   const name = formText(formData.get("name")) ?? "";
   const description = formText(formData.get("description"));
-
-  return db
-    .insert(item)
-    .values({
-      name,
-      description,
-      collectionId,
-      userId: user.id,
+  const propertyRows = propertyIds
+    .map((propertyId) => {
+      const value = formText(formData.get(propertyId));
+      return value !== null ? { propertyId, value } : null;
     })
-    .returning({ id: item.id, name: item.name });
+    .filter(
+      (row): row is { propertyId: string; value: string } => row !== null,
+    );
+
+  // use transaction to pass new ID from item insert to item property insert
+  return await db.transaction(async (tx) => {
+    const [newItem] = await tx
+      .insert(item)
+      .values({
+        name,
+        description,
+        collectionId,
+        userId: user.id,
+      })
+      .returning({ id: item.id, name: item.name });
+
+    await tx.insert(itemProperty).values(
+      propertyRows.map((row) => ({
+        itemId: newItem.id,
+        propertyId: row.propertyId,
+        value: row.value,
+      })),
+    );
+
+    return newItem;
+  });
 }
 
 export async function editItem(
   formData: FormData,
   itemId: string,
   deletedImageFileKeys: string[],
+  collectionPropertyIds: string[],
 ) {
   if (!itemId) {
     throw new Error("Item ID is required");
@@ -140,8 +167,6 @@ export async function editItem(
   }
 
   const collectionId = formText(formData.get("collectionId")) ?? "";
-  const name = formText(formData.get("name")) ?? "";
-  const description = formText(formData.get("description"));
 
   if (!collectionId) {
     throw new Error("Collection ID is required");
@@ -154,7 +179,7 @@ export async function editItem(
     .limit(1);
 
   if (!ownedItem) {
-    return [];
+    throw new Error("Item not found");
   }
 
   const [targetCollection] = await db
@@ -167,37 +192,63 @@ export async function editItem(
     throw new Error("Collection not found");
   }
 
-  const itemUpdate = () =>
-    db
-      .update(item)
-      .set({
-        name,
-        collectionId,
-        description,
-        modified: new Date(),
-      })
-      .where(and(eq(item.id, itemId), eq(item.userId, user.id)))
-      .returning({ name: item.name, collectionId: item.collectionId });
+  const name = formText(formData.get("name")) ?? "";
+  const description = formText(formData.get("description"));
 
-  // db.batch runs statements in one Neon transaction.
-  if (deletedImageFileKeys.length > 0) {
-    const [, updatedRows] = await db.batch([
+  const itemUpdate = db
+    .update(item)
+    .set({
+      name,
+      description,
+      collectionId,
+      modified: new Date(),
+    })
+    .where(and(eq(item.id, itemId), eq(item.userId, user.id)))
+    .returning({ name: item.name, collectionId: item.collectionId });
+
+  const imageDelete = db
+    .delete(itemImage)
+    .where(
+      and(
+        eq(itemImage.itemId, itemId),
+        inArray(itemImage.fileKey, deletedImageFileKeys),
+      ),
+    );
+
+  const propertyRows = collectionPropertyIds
+    .map((propertyId) => {
+      const value = formText(formData.get(propertyId));
+      return value !== null ? { propertyId, value } : null;
+    })
+    .filter(
+      (row): row is { propertyId: string; value: string } => row !== null,
+    );
+
+  if (propertyRows.length > 0) {
+    const [[updatedItem]] = await db.batch([
+      itemUpdate,
       db
-        .delete(itemImage)
-        .where(
-          and(
-            eq(itemImage.itemId, itemId),
-            inArray(itemImage.fileKey, deletedImageFileKeys),
-          ),
-        ),
-      itemUpdate(),
+        .insert(itemProperty)
+        .values(
+          propertyRows.map((row) => ({
+            itemId,
+            propertyId: row.propertyId,
+            value: row.value || null,
+          })),
+        )
+        .onConflictDoUpdate({
+          target: [itemProperty.itemId, itemProperty.propertyId],
+          set: { value: sql`excluded.value` },
+        }),
+      imageDelete,
     ]);
 
-    return updatedRows;
+    return updatedItem;
   }
 
-  // if no images are deleted, just update the item
-  return itemUpdate();
+  const [[updatedItem]] = await db.batch([itemUpdate, imageDelete]);
+
+  return updatedItem;
 }
 
 export async function starItem(itemId: string, isStarred: boolean) {

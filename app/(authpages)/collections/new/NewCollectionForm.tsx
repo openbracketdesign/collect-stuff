@@ -18,12 +18,14 @@ export function NewCollectionForm() {
       const [newCollection] = await createCollection(formData);
 
       if (newCollection?.id) {
-        toast(`"${formData.get("name") as string}" created!`);
+        toast.success(`"${newCollection.name}" created!`);
         router.replace(`/collections/${newCollection.id}`);
       }
     } catch (error) {
       console.error(error);
-      toast("Failed to create collection :(");
+      toast.error(
+        "Sorry, we couldn't create the collection. Please try again.",
+      );
     }
   };
 

@@ -34,9 +34,8 @@ export function StarButton({
         }
 
         await router.refresh();
-        // toast(next ? "Starred!" : "Unstarred!");
       } catch {
-        toast(
+        toast.error(
           `Sorry, we couldn't star the ${type === "ITEM" ? "item" : "collection"}. Please try again.`,
         );
         throw new Error(

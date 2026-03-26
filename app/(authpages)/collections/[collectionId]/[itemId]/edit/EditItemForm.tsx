@@ -61,20 +61,25 @@ export function EditItemForm({
 
   const doEditItem = async (formData: FormData) => {
     try {
-      const [updatedItem] = await editItem(
+      const selectedCollectionId = formData.get("collectionId") as string;
+      const collectionPropertyIds = collections
+        .find((collection) => collection.id === selectedCollectionId)!
+        .properties.map((property) => property.id);
+
+      const updatedItem = await editItem(
         formData,
         item.id,
         deletedImageFileKeys,
-        // item.collection.collectionProperties.map((property) => property.id),
+        collectionPropertyIds,
       );
 
       if (!updatedItem) {
-        toast("Sorry, we couldn't update the item. Please try again.");
+        toast.error("Sorry, we couldn't update the item. Please try again.");
         throw new Error("Failed to update item");
       }
 
       if (files.length > 0) {
-        toast(
+        toast.success(
           `"${updatedItem.name}" updated! Uploading ${files.length > 1 ? "images" : "image"}...`,
         );
 
@@ -90,7 +95,7 @@ export function EditItemForm({
           );
         }
       } else {
-        toast(`"${updatedItem.name}" updated!`);
+        toast.success(`"${updatedItem.name}" updated!`);
       }
 
       if (deletedImageFileKeys.length > 0) {
@@ -103,7 +108,7 @@ export function EditItemForm({
 
       router.replace(`/collections/${updatedItem.collectionId}/${item.id}`);
     } catch (error) {
-      toast("Sorry, we couldn't update the item. Please try again.");
+      toast.error("Sorry, we couldn't update the item. Please try again.");
     }
   };
 
@@ -217,7 +222,8 @@ export function EditItemForm({
           name={property.id}
           placeholder={property.name}
           defaultValue={
-            item.properties.find((p) => p.propertyId === property.id)?.value
+            item.properties.find((p) => p.propertyId === property.id)?.value ??
+            ""
           }
         />
       ))}

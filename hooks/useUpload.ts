@@ -7,15 +7,17 @@ export function useUpload(files: File[]) {
       try {
         if (!uploadResult?.[0]?.ufsUrl) {
           throw new Error(
-            `Couldn't upload ${files.length > 1 ? "images" : "image"}, but the rest of your data was saved. Try again later.`,
+            `Sorry, we couldn't upload your ${files.length > 1 ? "images" : "image"}, but the rest of your data was saved. Try again later.`,
           );
         }
 
-        toast(`Image uploaded successfully.`);
+        toast.success(
+          `${files.length > 1 ? "Images" : "Image"} uploaded successfully.`,
+        );
       } catch (e) {
         console.error(e);
-        toast(
-          `Couldn't upload ${files.length > 1 ? "images" : "image"}, but the rest of your data was saved. Try again later.`,
+        toast.error(
+          `Sorry, we couldn't upload your ${files.length > 1 ? "images" : "image"}, but the rest of your data was saved. Try again later.`,
         );
       }
     },
