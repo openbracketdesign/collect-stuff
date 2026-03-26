@@ -7,6 +7,7 @@ import { UTApi } from "uploadthing/server";
 import { db } from "./db";
 import {
   collection,
+  collectionProperty,
   collectionStar,
   item,
   itemImage,
@@ -20,7 +21,10 @@ function formText(value: FormDataEntryValue | null): string | null {
   return typeof value === "string" ? value : null;
 }
 
-export async function createCollection(formData: FormData) {
+export async function createCollection(
+  formData: FormData,
+  newProperties: string[],
+) {
   const user = await currentUser();
 
   if (!user?.id) {
@@ -30,14 +34,31 @@ export async function createCollection(formData: FormData) {
   const name = formText(formData.get("name")) ?? "";
   const description = formText(formData.get("description"));
 
-  return db
-    .insert(collection)
-    .values({
-      name,
-      description,
-      userId: user.id,
+  const propertyRows = newProperties
+    .map((property) => {
+      return { name: property };
     })
-    .returning({ id: collection.id, name: collection.name });
+    .filter((row) => row.name !== "");
+
+  const collectionId = crypto.randomUUID();
+
+  return await db.batch([
+    db
+      .insert(collection)
+      .values({
+        id: collectionId,
+        name,
+        description,
+        userId: user.id,
+      })
+      .returning({ id: collection.id, name: collection.name }),
+    db.insert(collectionProperty).values(
+      propertyRows.map((row) => ({
+        collectionId,
+        name: row.name,
+      })),
+    ),
+  ]);
 }
 
 export async function editCollection(formData: FormData, collectionId: string) {
@@ -126,28 +147,26 @@ export async function createItem(
       (row): row is { propertyId: string; value: string } => row !== null,
     );
 
-  // use transaction to pass new ID from item insert to item property insert
-  return await db.transaction(async (tx) => {
-    const [newItem] = await tx
-      .insert(item)
-      .values({
-        name,
-        description,
-        collectionId,
-        userId: user.id,
-      })
-      .returning({ id: item.id, name: item.name });
+  const itemId = crypto.randomUUID();
 
-    await tx.insert(itemProperty).values(
+  await db.batch([
+    db.insert(item).values({
+      id: itemId,
+      name,
+      description,
+      collectionId,
+      userId: user.id,
+    }),
+    db.insert(itemProperty).values(
       propertyRows.map((row) => ({
-        itemId: newItem.id,
+        itemId,
         propertyId: row.propertyId,
         value: row.value,
       })),
-    );
+    ),
+  ]);
 
-    return newItem;
-  });
+  return { id: itemId, name };
 }
 
 export async function editItem(
@@ -206,6 +225,7 @@ export async function editItem(
     .where(and(eq(item.id, itemId), eq(item.userId, user.id)))
     .returning({ name: item.name, collectionId: item.collectionId });
 
+  // delete image references that are no longer in the form data: only runs if there are deleted image file keys
   const imageDelete = db
     .delete(itemImage)
     .where(
@@ -215,6 +235,7 @@ export async function editItem(
       ),
     );
 
+  // form fields are named with collection property id
   const propertyRows = collectionPropertyIds
     .map((propertyId) => {
       const value = formText(formData.get(propertyId));
@@ -228,7 +249,7 @@ export async function editItem(
     const [[updatedItem]] = await db.batch([
       itemUpdate,
       db
-        .insert(itemProperty)
+        .insert(itemProperty) // upsert item properties; do not bother deleting old ones associated with different collection if that was changed. If the collection is changed back, we will still have them
         .values(
           propertyRows.map((row) => ({
             itemId,
@@ -246,6 +267,7 @@ export async function editItem(
     return updatedItem;
   }
 
+  // if there are no property rows, just update the item and delete any unused image references
   const [[updatedItem]] = await db.batch([itemUpdate, imageDelete]);
 
   return updatedItem;

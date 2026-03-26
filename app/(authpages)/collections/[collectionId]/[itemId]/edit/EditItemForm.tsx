@@ -39,10 +39,26 @@ export function EditItemForm({
   const [deletedImageFileKeys, setDeletedImageFileKeys] = useState<string[]>(
     [],
   );
+  const [selectedCollectionId, setSelectedCollectionId] = useState(
+    item.collectionId,
+  );
+  const [selectedCollectionProperties, setSelectedCollectionProperties] =
+    useState(
+      collections.find((collection) => collection.id === selectedCollectionId)!
+        .properties,
+    );
 
   const router = useRouter();
 
   const { startUpload } = useUpload(files);
+
+  const updateSelectedCollection = (collectionId: string) => {
+    setSelectedCollectionId(collectionId);
+    setSelectedCollectionProperties(
+      collections.find((collection) => collection.id === collectionId)!
+        .properties,
+    );
+  };
 
   const toggleDeletedImage = (
     event: React.MouseEvent<HTMLButtonElement>,
@@ -126,7 +142,11 @@ export function EditItemForm({
         >
           Collection
         </Label>
-        <Select name="collectionId" defaultValue={item.collectionId}>
+        <input type="hidden" name="collectionId" value={selectedCollectionId} />
+        <Select
+          value={selectedCollectionId}
+          onValueChange={updateSelectedCollection}
+        >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select a collection" />
           </SelectTrigger>
@@ -137,7 +157,7 @@ export function EditItemForm({
                   key={collection.id}
                   value={collection.id}
                   className={cx({
-                    "text-primary": collection.id === item.collectionId,
+                    "text-primary": collection.id === selectedCollectionId,
                   })}
                 >
                   {collection.name}
@@ -215,18 +235,43 @@ export function EditItemForm({
         </div>
       </div>
 
-      {item.collection.properties.map((property) => (
-        <Input
-          key={property.id}
-          type="text"
-          name={property.id}
-          placeholder={property.name}
-          defaultValue={
-            item.properties.find((p) => p.propertyId === property.id)?.value ??
-            ""
-          }
-        />
-      ))}
+      <div className="mb-3 flex flex-col gap-2">
+        <p className="flex items-center text-primary text-sm font-medium">
+          Properties
+        </p>
+        <div
+          key={selectedCollectionId}
+          className="flex flex-col gap-4 border p-4 rounded-md"
+        >
+          {selectedCollectionProperties.length > 0 &&
+            selectedCollectionProperties.map((property) => (
+              <div key={property.id} className="flex flex-col gap-2">
+                <Label
+                  htmlFor={property.id}
+                  className="flex items-center text-primary"
+                >
+                  {property.name}
+                </Label>
+                <Input
+                  type="text"
+                  name={property.id}
+                  placeholder={property.name}
+                  defaultValue={
+                    item.properties.find((p) => p.propertyId === property.id)
+                      ?.value ?? ""
+                  }
+                />
+              </div>
+            ))}
+
+          {selectedCollectionProperties.length === 0 && (
+            <p className="text-sm text-gray-500">
+              This collection doesn't have any properties yet. Edit the
+              collection to add properties, then edit this item to add values.
+            </p>
+          )}
+        </div>
+      </div>
 
       <div className="ml-auto flex gap-4">
         <Link

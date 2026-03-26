@@ -26,7 +26,8 @@ export function AddItemForm({ collection }: { collection: Collection }) {
       (property) => property.id,
     );
 
-    let newItem: Awaited<ReturnType<typeof createItem>>;
+    let newItem: { id: string; name: string };
+
     try {
       newItem = await createItem(
         formData,
@@ -34,11 +35,6 @@ export function AddItemForm({ collection }: { collection: Collection }) {
         collectionPropertyIds,
       );
     } catch {
-      toast.error("Sorry, we couldn't create the item. Please try again.");
-      return;
-    }
-
-    if (!newItem?.id) {
       toast.error("Sorry, we couldn't create the item. Please try again.");
       return;
     }
@@ -79,35 +75,49 @@ export function AddItemForm({ collection }: { collection: Collection }) {
       action={addItemToCollection}
       className="flex max-w-[100%] flex-col gap-4 md:max-w-[600px]"
     >
-      <div className="mb-3 flex flex-col gap-4 sm:flex-row sm:gap-2">
-        <Label htmlFor="name" className="flex w-40 items-center">
+      <div className="mb-3 flex flex-col gap-2">
+        <Label htmlFor="name" className="flex items-center text-primary">
           Name
         </Label>
         <Input type="text" name="name" placeholder="Item name" />
       </div>
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:gap-2">
-        <Label htmlFor="description" className="flex w-40 items-start sm:pt-2">
+      <div className="mb-3 flex flex-col gap-2">
+        <Label htmlFor="description" className="flex items-center text-primary">
           Description
         </Label>
         <Textarea name="description" placeholder="Description" />
       </div>
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:gap-2">
-        <Label htmlFor="image" className="flex w-40 items-start sm:pt-2">
+      <div className="mb-3 flex flex-col gap-2">
+        <Label htmlFor="image" className="flex items-center text-primary">
           Images (max 10, max 4MB each)
         </Label>
         <MultiUploader files={files} setFiles={setFiles} />
       </div>
 
-      {collection.properties.map((property) => (
-        <Input
-          key={property.id}
-          type="text"
-          name={property.id}
-          placeholder={property.name}
-        />
-      ))}
+      <div className="mb-3 flex flex-col gap-2">
+        <p className="flex items-center text-primary text-sm font-medium">
+          Properties
+        </p>
+        <div className="flex flex-col gap-4 border p-4 rounded-md">
+          {collection.properties.length > 0 ? (
+            collection.properties.map((property) => (
+              <Input
+                key={property.id}
+                type="text"
+                name={property.id}
+                placeholder={property.name}
+              />
+            ))
+          ) : (
+            <p className="text-sm text-gray-500">
+              This collection doesn't have any properties yet. Edit the
+              collection to add properties, then add an item to add values.
+            </p>
+          )}
+        </div>
+      </div>
 
       <div className="ml-auto flex gap-4">
         <Link href={`/collections/${collection.id}`} className="inline-block">
