@@ -61,7 +61,13 @@ export async function createCollection(
   ]);
 }
 
-export async function editCollection(formData: FormData, collectionId: string) {
+export async function editCollection(
+  formData: FormData,
+  collectionId: string,
+  collectionPropertyIds: string[],
+  newProperties: string[],
+  deletedProperties: string[],
+) {
   if (!collectionId) {
     throw new Error("Collection ID is required");
   }
@@ -75,7 +81,13 @@ export async function editCollection(formData: FormData, collectionId: string) {
   const name = formText(formData.get("name")) ?? "";
   const description = formText(formData.get("description"));
 
-  return db
+  const newPropertyRows = newProperties
+    .map((property) => {
+      return { name: property };
+    })
+    .filter((row) => row.name !== "");
+
+  const collectionUpdate = db
     .update(collection)
     .set({
       name,
@@ -84,6 +96,52 @@ export async function editCollection(formData: FormData, collectionId: string) {
     })
     .where(and(eq(collection.id, collectionId), eq(collection.userId, user.id)))
     .returning({ name: collection.name });
+
+  /** could filter out unchanged properties here, but would need to know the current property names:ids */
+  const propertyUpdate = collectionPropertyIds.map((id) =>
+    db
+      .update(collectionProperty)
+      .set({ name: formText(formData.get(id)) ?? "" })
+      .where(
+        and(
+          eq(collectionProperty.id, id),
+          eq(collectionProperty.collectionId, collectionId),
+        ),
+      ),
+  );
+
+  const propertyDelete = db
+    .delete(collectionProperty)
+    .where(inArray(collectionProperty.id, deletedProperties));
+
+  if (newPropertyRows.length > 0) {
+    const [[updatedCollection]] = await db.batch([
+      collectionUpdate,
+      ...propertyUpdate,
+      db
+        .insert(collectionProperty)
+        .values(
+          newPropertyRows.map((row) => ({
+            collectionId,
+            name: row.name,
+          })),
+        )
+        .onConflictDoNothing({
+          target: [collectionProperty.collectionId, collectionProperty.name],
+        }),
+      propertyDelete,
+    ]);
+
+    return updatedCollection;
+  }
+
+  const [[updatedCollection]] = await db.batch([
+    collectionUpdate,
+    ...propertyUpdate,
+    propertyDelete,
+  ]);
+
+  return updatedCollection;
 }
 
 export async function starCollection(collectionId: string, isStarred: boolean) {
@@ -149,22 +207,28 @@ export async function createItem(
 
   const itemId = crypto.randomUUID();
 
-  await db.batch([
-    db.insert(item).values({
-      id: itemId,
-      name,
-      description,
-      collectionId,
-      userId: user.id,
-    }),
-    db.insert(itemProperty).values(
-      propertyRows.map((row) => ({
-        itemId,
-        propertyId: row.propertyId,
-        value: row.value,
-      })),
-    ),
-  ]);
+  const itemInsert = db.insert(item).values({
+    id: itemId,
+    name,
+    description,
+    collectionId,
+    userId: user.id,
+  });
+
+  if (propertyRows.length > 0) {
+    await db.batch([
+      itemInsert,
+      db.insert(itemProperty).values(
+        propertyRows.map((row) => ({
+          itemId,
+          propertyId: row.propertyId,
+          value: row.value,
+        })),
+      ),
+    ]);
+  }
+
+  await itemInsert;
 
   return { id: itemId, name };
 }

@@ -24,16 +24,16 @@ export function NewCollectionForm() {
   const doCreateCollection = async (formData: FormData) => {
     // TODO: form validation
     try {
-      const newCollection = await createCollection(formData, newProperties);
+      const [[newCollection]] = await createCollection(formData, newProperties);
 
-      // if (!newCollection?.id) {
-      //   toast.error(
-      //     "Sorry, we couldn't create the collection. Please try again.",
-      //   );
-      //   return;
-      // }
+      if (!newCollection?.id) {
+        toast.error(
+          "Sorry, we couldn't create the collection. Please try again.",
+        );
+        return;
+      }
 
-      // router.replace(`/collections/${newCollection.id}`);
+      router.replace(`/collections/${newCollection.id}`);
     } catch (error) {
       console.error(error);
       toast.error(
@@ -72,11 +72,11 @@ export function NewCollectionForm() {
         />
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-4">
         <p className="flex items-center text-primary text-sm font-medium">
           Properties
         </p>
-        {newProperties.map((property, i) => (
+        {newProperties.map((_, i) => (
           <div key={i} className="flex flex-col gap-2">
             <Label
               htmlFor={`property-${i}`}

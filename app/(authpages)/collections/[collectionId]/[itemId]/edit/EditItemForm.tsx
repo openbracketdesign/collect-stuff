@@ -144,6 +144,7 @@ export function EditItemForm({
         </Label>
         <input type="hidden" name="collectionId" value={selectedCollectionId} />
         <Select
+          name="collectionId"
           value={selectedCollectionId}
           onValueChange={updateSelectedCollection}
         >
@@ -174,6 +175,7 @@ export function EditItemForm({
         </Label>
         <Input
           type="text"
+          id="name"
           name="name"
           placeholder="Item name"
           defaultValue={item.name}
@@ -185,6 +187,7 @@ export function EditItemForm({
           Description
         </Label>
         <Textarea
+          id="description"
           name="description"
           placeholder="Description"
           defaultValue={item.description ?? ""}
@@ -192,7 +195,7 @@ export function EditItemForm({
       </div>
 
       <div className="mb-3 flex flex-col gap-2">
-        <Label htmlFor="image" className="flex items-center text-primary">
+        <Label className="flex items-center text-primary">
           Images (max 10, max 4MB each)
         </Label>
 
@@ -254,6 +257,7 @@ export function EditItemForm({
                 </Label>
                 <Input
                   type="text"
+                  id={property.id}
                   name={property.id}
                   placeholder={property.name}
                   defaultValue={

@@ -37,13 +37,22 @@ export const itemImage = pgTable("item_image", {
   fileKey: text("fileKey").notNull(),
 });
 
-export const collectionProperty = pgTable("collection_property", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  collectionId: uuid("collectionId")
-    .notNull()
-    .references(() => collection.id, { onDelete: "cascade" }),
-  name: text("name").notNull(),
-});
+export const collectionProperty = pgTable(
+  "collection_property",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    collectionId: uuid("collectionId")
+      .notNull()
+      .references(() => collection.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+  },
+  (table) => [
+    uniqueIndex("collection_property_collectionId_name_unique").on(
+      table.collectionId,
+      table.name,
+    ),
+  ],
+);
 
 export const itemProperty = pgTable(
   "item_property",
