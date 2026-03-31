@@ -1,20 +1,22 @@
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { getMyCollectionsWithItems } from "@/server/query";
-import { Star } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { CreateCollectionButton } from "../button/CreateCollectionButton";
-import { PageTitle } from "../header/PageTitle";
-import PageContent from "../PageContent";
+} from "@/components/ui/card"
+import { getMyCollectionsWithItems } from "@/server/query"
+import Image from "next/image"
+import Link from "next/link"
+import { CreateCollectionButton } from "../button/CreateCollectionButton"
+import { StarButton } from "../button/StarButton"
+import { PageTitle } from "../header/PageTitle"
+import PageContent from "../PageContent"
 
 export const MyCollections = async () => {
-  const collections = await getMyCollectionsWithItems();
+  const collections = await getMyCollectionsWithItems()
 
   if (!collections) {
     return (
@@ -25,7 +27,7 @@ export const MyCollections = async () => {
           <h1>Collections not found</h1>
         </PageContent>
       </>
-    );
+    )
   }
 
   return (
@@ -38,14 +40,13 @@ export const MyCollections = async () => {
       )}
 
       {collections.length > 0 && (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(340px,1fr))] gap-4">
+        <div className="gap-4 lg:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] grid">
           {collections.map((collection) => (
             <Link key={collection.id} href={`/collections/${collection.id}`}>
-              <Card className="group grid h-full grid-cols-[2fr_3fr] gap-4 p-4 hover:border-primary-300">
+              <Card className="group gap-4 p-4 hover:border-primary-300 lg:grid-rows-[auto_1fr_auto] lg:grid-cols-1 grid h-full grid-cols-[2fr_3fr]">
                 <CardContent className="p-0">
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="gap-2 grid grid-cols-2">
                     {[0, 1, 2, 3].map((i) =>
-                      collection.items?.length > 0 &&
                       collection.items[i]?.images[0]?.url ? (
                         <Image
                           key={i}
@@ -53,36 +54,44 @@ export const MyCollections = async () => {
                           alt={collection.items[i].name}
                           width={70}
                           height={70}
-                          className="h-16 w-full rounded"
+                          className="h-16 rounded w-full"
                           style={{ objectFit: "cover" }}
                         />
                       ) : (
                         <div
                           key={i}
-                          className="h-16 w-full rounded border"
+                          className="h-16 rounded w-full border"
                         ></div>
-                      ),
+                      )
                     )}
                   </div>
                 </CardContent>
 
-                <CardHeader className="p-0">
-                  <CardTitle className="space-grotesk text-xl leading-tight group-hover:text-primary flex items-center gap-2">
-                    {collection.stars && collection.stars.length > 0 && (
-                      <Star className="w-4 h-4 fill-amber-500 text-amber-500" />
-                    )}
+                <CardHeader className="p-0 gap-x-4">
+                  <CardTitle className="space-grotesk text-xl leading-6 group-hover:text-primary gap-2 flex items-center">
                     {`${collection.name.slice(0, 50)}${collection.name.length > 50 ? "..." : ""}`}
                   </CardTitle>
 
-                  <CardDescription className="mt-2 line-clamp-3 text-primary empty:hidden">
-                    {collection.items?.length}{" "}
-                    {`${collection.items?.length === 1 ? "item" : "items"}`}
+                  <CardDescription className="mt-2 text-primary line-clamp-3 empty:hidden">
+                    {collection.itemCount}{" "}
+                    {`${collection.itemCount === 1 ? "item" : "items"}`}
                   </CardDescription>
 
-                  <CardDescription className="mt-2 line-clamp-3 empty:hidden">
+                  <CardAction className="justify-end">
+                    <StarButton
+                      type="COLLECTION"
+                      id={collection.id}
+                      iconOnly
+                      starred={collection.stars && collection.stars.length > 0}
+                    />
+                  </CardAction>
+                </CardHeader>
+
+                <CardFooter className="p-0 m-0 pt-3 lg:col-span-1 col-span-2 border-t">
+                  <CardDescription className="line-clamp-3 empty:hidden">
                     {collection.description}
                   </CardDescription>
-                </CardHeader>
+                </CardFooter>
               </Card>
             </Link>
           ))}
@@ -99,5 +108,5 @@ export const MyCollections = async () => {
         </div>
       )}
     </>
-  );
-};
+  )
+}

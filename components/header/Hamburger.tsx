@@ -1,15 +1,19 @@
-"use client";
+"use client"
 
-import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useSidebar } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button"
+import { useSidebar } from "@/components/ui/sidebar"
+import { Menu } from "lucide-react"
 
 export function Hamburger() {
-  const { toggleSidebar } = useSidebar();
+  const { toggleSidebar } = useSidebar()
 
   return (
-    <Button className='lg:hidden' variant='outline' onClick={toggleSidebar}>
+    <Button
+      className="lg:hidden mr-3 self-start"
+      variant="outline"
+      onClick={toggleSidebar}
+    >
       <Menu />
     </Button>
-  );
+  )
 }

@@ -1,7 +1,7 @@
-import { cx } from "class-variance-authority";
-import type { ReactNode } from "react";
-import Breadcrumbs from "./Breadcrumbs";
-import Logo from "./Logo";
+import { cx } from "class-variance-authority"
+import type { ReactNode } from "react"
+import Breadcrumbs from "./Breadcrumbs"
+import Logo from "./Logo"
 
 export function PageTitleContent({
   breadcrumbs,
@@ -10,12 +10,12 @@ export function PageTitleContent({
   mobile,
 }: {
   breadcrumbs: Array<{
-    name: string;
-    href: string;
-  }>;
-  title: string;
-  children?: ReactNode;
-  mobile?: boolean;
+    name: string
+    href: string
+  }>
+  title: string
+  children?: ReactNode
+  mobile?: boolean
 }) {
   return (
     <>
@@ -27,9 +27,9 @@ export function PageTitleContent({
         <h1
           className={cx(
             mobile
-              ? "leading-8 md:hidden"
-              : "hidden md:block md:text-left md:text-4xl lg:text-5xl",
-            "text-4xl font-bold tracking-tight text-primary",
+              ? "md:hidden"
+              : "md:block md:text-left md:text-4xl lg:text-5xl hidden",
+            "text-4xl font-bold tracking-tight text-primary leading-[1]"
           )}
         >
           {title}
@@ -38,17 +38,19 @@ export function PageTitleContent({
 
       <div
         className={
-          mobile ? "mt-6 px-6 empty:hidden md:hidden" : "hidden md:block"
+          mobile
+            ? "mt-4 px-6 md:hidden empty:hidden"
+            : "md:block mb-1 ml-6 hidden self-end"
         }
       >
         {RightContent}
       </div>
 
       {!mobile && (
-        <div className="flex gap-2 md:hidden">
+        <div className="gap-2 md:hidden flex">
           <Logo />
         </div>
       )}
     </>
-  );
+  )
 }

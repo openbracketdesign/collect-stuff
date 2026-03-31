@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
 import {
   type ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
-} from "@tanstack/react-table";
+} from "@tanstack/react-table"
 
 import {
   Table,
@@ -14,16 +14,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/table"
 
-import { cx } from "class-variance-authority";
-import Image from "next/image";
-import Link from "next/link";
+import { cx } from "class-variance-authority"
+import Image from "next/image"
+import Link from "next/link"
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  collectionId: string;
+  columns: ColumnDef<TData, TValue>[]
+  data: TData[]
+  collectionId: string
 }
 
 export function DataTable<TData, TValue>({
@@ -35,29 +35,29 @@ export function DataTable<TData, TValue>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-  });
+  })
 
   return (
-    <div className='rounded-md border'>
+    <div className="rounded-md border">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                return (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                  </TableHead>
-                );
-              })}
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id}>
+                  {header.isPlaceholder ||
+                  header.column.columnDef.header?.toString() === "Image"
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                </TableHead>
+              ))}
             </TableRow>
           ))}
         </TableHeader>
+
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
@@ -76,25 +76,29 @@ export function DataTable<TData, TValue>({
                     {cell.column.id === "image" ? (
                       <Link
                         href={`/collections/${collectionId}/${(cell.row.original as { id: string }).id}`}
-                        className='block h-12 w-12'
+                        className="h-12 w-12 block"
                       >
-                        <Image
-                          src={cell.getValue() as string}
-                          alt={(cell.row.original as { name: string }).name}
-                          width={64}
-                          height={64}
-                          style={{ objectFit: "cover" }}
-                          className='h-full rounded-md border'
-                        />
+                        {cell.getValue() ? (
+                          <Image
+                            src={cell.getValue() as string}
+                            alt={(cell.row.original as { name: string }).name}
+                            width={64}
+                            height={64}
+                            style={{ objectFit: "cover" }}
+                            className="rounded-md h-full border"
+                          />
+                        ) : (
+                          <div className="rounded-md h-full border" />
+                        )}
                       </Link>
                     ) : cell.column.id === "name" ? (
                       <Link
                         href={`/collections/${collectionId}/${(cell.row.original as { id: string }).id}`}
-                        className='text-lg'
+                        className="text-base"
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext(),
+                          cell.getContext()
                         )}
                       </Link>
                     ) : (
@@ -106,7 +110,7 @@ export function DataTable<TData, TValue>({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className='h-24 text-center'>
+              <TableCell colSpan={columns.length} className="h-24 text-center">
                 No results.
               </TableCell>
             </TableRow>
@@ -114,5 +118,5 @@ export function DataTable<TData, TValue>({
         </TableBody>
       </Table>
     </div>
-  );
+  )
 }

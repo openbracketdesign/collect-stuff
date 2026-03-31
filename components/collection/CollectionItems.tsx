@@ -1,91 +1,103 @@
-"use client";
+"use client"
 
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import Link from "next/link";
+} from "@/components/ui/card"
+import Link from "next/link"
 // import { type CollectionWithItemProperties } from "~/types";
-import { CollectionWithItemsAndImages } from "@/server/schema";
-import Image from "next/image";
-import { buildColumns } from "./Columns";
-import { DataTable } from "./DataTable";
+import { CollectionWithItemsAndImages } from "@/server/schema"
+import Image from "next/image"
+import { StarButton } from "../button/StarButton"
+import { buildColumns } from "./Columns"
+import { DataTable } from "./DataTable"
 
 export function CollectionItems({
   collection,
   view,
 }: {
-  collection: CollectionWithItemsAndImages;
-  view?: "grid" | "table";
+  collection: CollectionWithItemsAndImages
+  view?: "GRID" | "TABLE"
 }) {
-  if (view === "table") {
-    const columns = buildColumns(collection);
-    const itemProperties: Array<Record<string, string>> = collection.items?.map(
-      (item: any) => {
-        const itemProps = item.itemProperties.map((property: any) => ({
-          id: property.propertyId,
-          value: property.value,
-        }));
-        const itemPropsObject = itemProps.reduce(
-          (acc: Record<string, string>, prop: any) => {
-            acc[prop.id] = prop.value;
-            return acc;
-          },
-          {},
-        );
+  if (view === "TABLE") {
+    const columns = buildColumns(collection)
 
-        return {
-          id: item.id,
-          name: item.name,
-          image: item.image,
-          ...itemPropsObject,
-        };
-      },
-    );
+    const itemProps = collection.items?.map((item) => {
+      const fixedProps: Record<string, string> = {
+        image: item.images[0]?.url || "",
+        name: item.name,
+        id: item.id,
+      }
+
+      const props = item.properties.reduce((acc, property) => {
+        acc[property.propertyId] = property.value ?? "--"
+        return acc
+      }, fixedProps)
+
+      return props
+    })
 
     return (
       <DataTable
         columns={columns}
-        data={itemProperties}
+        data={itemProps}
         collectionId={collection.id}
       />
-    );
+    )
   }
 
   // grid
   return (
-    <div className="grid grid-cols-[repeat(auto-fill,minmax(340px,1fr))] gap-4">
+    <div className="gap-4 lg:grid-cols-1 grid grid-cols-[repeat(auto-fill,minmax(340px,1fr))]">
+      {collection.items?.length === 0 && (
+        <p className="text-gray-500">
+          No items in this collection yet. Add some items to get started!
+        </p>
+      )}
+
       {collection.items?.map((item) => (
         <Link key={item.id} href={`/collections/${collection.id}/${item.id}`}>
-          <Card className="group grid h-full grid-cols-[2fr_3fr] gap-4 p-4 hover:border-primary-300">
+          <Card className="group gap-4 p-4 hover:border-primary-300 grid h-full grid-cols-[80px_3fr]">
             <CardContent className="p-0">
-              {item.images[0]?.url && (
+              {item.images[0]?.url ? (
                 <Image
                   src={item.images[0].url}
                   alt={item.name}
-                  className="max-h-[140px] w-full rounded md:w-[140px]"
+                  className="rounded md:w-[80px] h-[80px] w-full"
                   style={{ objectFit: "contain" }}
                   height={300}
                   width={300}
                 />
+              ) : (
+                <div className="rounded h-[80px] w-full border" />
               )}
             </CardContent>
 
-            <CardHeader className="p-0">
-              <CardTitle className="space-grotesk text-xl leading-tight group-hover:text-primary">
+            <CardHeader className="p-0 gap-y-1 gap-x-4">
+              <CardTitle className="space-grotesk text-base leading-5 group-hover:text-primary">
                 {item.name}
               </CardTitle>
 
-              <CardDescription className="mt-2 line-clamp-3 empty:hidden">
+              <CardDescription className="line-clamp-3 empty:hidden">
                 {item.description}
               </CardDescription>
+
+              <CardAction className="justify-end">
+                <StarButton
+                  type="ITEM"
+                  id={item.id}
+                  iconOnly
+                  starred={item.stars && item.stars.length > 0}
+                />
+              </CardAction>
             </CardHeader>
           </Card>
         </Link>
       ))}
     </div>
-  );
+  )
 }

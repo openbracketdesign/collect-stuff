@@ -1,21 +1,18 @@
-import { CollectionItems } from "@/components/collection/CollectionItems";
-import { CollectionActions } from "@/components/header/CollectionActions";
-import { PageTitle } from "@/components/header/PageTitle";
-import PageContent from "@/components/PageContent";
-import { Button } from "@/components/ui/button";
-import { getCollectionById } from "@/server/query";
-import { auth } from "@clerk/nextjs/server";
-import { cx } from "class-variance-authority";
-import { Plus } from "lucide-react";
-import Link from "next/link";
+import { CollectionItemsTableOrGrid } from "@/components/collection/CollectionItemsTableOrGrid"
+import { CollectionActions } from "@/components/header/CollectionActions"
+import { PageTitle } from "@/components/header/PageTitle"
+import PageContent from "@/components/PageContent"
+import { getCollectionById } from "@/server/query"
+import { auth } from "@clerk/nextjs/server"
+import { cx } from "class-variance-authority"
 
 export default async function CollectionPage({
   params,
 }: {
-  params: Promise<{ collectionId: string }>;
+  params: Promise<{ collectionId: string }>
 }) {
-  const { collectionId } = await params;
-  const collection = await getCollectionById(collectionId);
+  const { collectionId } = await params
+  const collection = await getCollectionById(collectionId)
 
   if (!collection) {
     return (
@@ -28,10 +25,10 @@ export default async function CollectionPage({
           <h1>Collection not found</h1>
         </PageContent>
       </>
-    );
+    )
   }
 
-  const { userId } = await auth();
+  const { userId } = await auth()
 
   return (
     <>
@@ -49,7 +46,7 @@ export default async function CollectionPage({
         )}
       </PageTitle>
 
-      <div className="mt-6 border-t md:m-0 md:border-0">
+      <div className="mt-6 md:m-0 md:border-0 border-t">
         <PageContent>
           <p
             className={cx("mb-4 max-w-[70ch]", {
@@ -59,33 +56,12 @@ export default async function CollectionPage({
             {collection.description ?? "No description"}
           </p>
 
-          <div
-            className={cx("mb-4 mt-6 border-t pt-6", {
-              "mb-0": collection.items?.length === 0,
-            })}
-          >
-            <div className="inline-flex">
-              <h2 className="text-2xl text-primary">
-                {collection.items?.length ?? 0}{" "}
-                {collection.items?.length === 1 ? "item" : "items"}
-              </h2>
-
-              {userId === collection.userId && (
-                <Link
-                  href={`/collections/${collectionId}/add`}
-                  className="ml-4"
-                >
-                  <Button size="sm">
-                    Add <Plus />
-                  </Button>
-                </Link>
-              )}
-            </div>
-          </div>
-
-          <CollectionItems collection={collection} />
+          <CollectionItemsTableOrGrid
+            collection={collection}
+            canAddItems={userId === collection.userId}
+          />
         </PageContent>
       </div>
     </>
-  );
+  )
 }
