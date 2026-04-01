@@ -1,6 +1,6 @@
 "use client";
 
-import { deleteItem } from "@/server/actions";
+import { deleteCollection, deleteItem } from "@/server/actions";
 import { Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -18,30 +18,37 @@ import {
 import { Button } from "../ui/button";
 import { DropdownMenuItem } from "../ui/dropdown-menu";
 
-export function DeleteItemButton({
-  item,
+export function DeleteButton({
+  thing,
+  type = "item",
   variant = "button",
+  redirectTo,
 }: {
-  item: { id: string; name: string };
+  thing: { id: string; name: string };
+  type?: "item" | "collection";
   variant?: "button" | "menuItem";
+  redirectTo?: string;
 }) {
   const router = useRouter();
 
-  const doDeleteItem = async (itemId: string, itemName: string) => {
+  const doDelete = async (id: string, name: string) => {
     try {
-      const deleted = await deleteItem(itemId);
+      const deleted =
+        type === "item" ? await deleteItem(id) : await deleteCollection(id);
 
       if (deleted.id) {
-        toast.success(`"${itemName}" deleted!`);
-        router.refresh();
+        toast.success(`"${name}" deleted!`);
+        if (redirectTo) {
+          router.replace(redirectTo);
+        } else {
+          router.refresh();
+        }
       } else {
-        toast.error(
-          `Sorry, we couldn't delete "${itemName}". Please try again.`,
-        );
+        toast.error(`Sorry, we couldn't delete "${name}". Please try again.`);
       }
     } catch (error) {
       console.error(error);
-      toast.error(`Sorry, we couldn't delete "${itemName}". Please try again.`);
+      toast.error(`Sorry, we couldn't delete "${name}". Please try again.`);
     }
   };
 
@@ -70,17 +77,18 @@ export function DeleteItemButton({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            Delete <span className="font-bold">{item.name}</span>?
+            Delete <span className="font-bold">{thing.name}</span>?
           </AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete the item.
+            This action cannot be undone. This will permanently delete the{" "}
+            {type === "item" ? "item" : "collection"}.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
-            onClick={() => doDeleteItem(item.id, item.name)}
+            onClick={() => doDelete(thing.id, thing.name)}
           >
             Delete
             <Trash />

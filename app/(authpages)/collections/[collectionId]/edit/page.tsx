@@ -1,3 +1,4 @@
+import { DeleteButton } from "@/components/button/DeleteButton";
 import { PageTitle } from "@/components/header/PageTitle";
 import PageContent from "@/components/PageContent";
 import { getAuthedCollectionById } from "@/server/query";
@@ -21,7 +22,8 @@ export default async function EditCollectionPage({
 
         <PageContent>
           <h1>
-            Collection not found, or maybe you don't have permission to edit it
+            Collection not found, or maybe you don&apos;t have permission to
+            edit it
           </h1>
         </PageContent>
       </>
@@ -30,14 +32,15 @@ export default async function EditCollectionPage({
 
   return (
     <>
-      <PageTitle
-        breadcrumbs={[{ name: "My Collections", href: "/collections" }]}
-        title={collection.name}
-      />
+      <PageTitle title="Edit collection">
+        <DeleteButton
+          thing={collection}
+          type="collection"
+          redirectTo="/collections"
+        />
+      </PageTitle>
 
       <PageContent>
-        <h2 className="mb-4 text-2xl text-primary">Edit collection</h2>
-
         <EditCollectionForm collection={collection} />
       </PageContent>
     </>

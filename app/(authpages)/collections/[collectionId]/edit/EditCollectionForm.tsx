@@ -75,105 +75,112 @@ export function EditCollectionForm({ collection }: { collection: Collection }) {
       action={doEditCollection}
       className="flex max-w-[100%] flex-col gap-4 md:max-w-[600px]"
     >
-      <div className="mb-3 flex flex-col gap-4 sm:flex-row sm:gap-2">
-        <Label htmlFor="name" className="flex w-40 items-center">
+      <div className="mb-3 flex flex-col gap-2">
+        <Label htmlFor="name" className="text-primary">
           Name
         </Label>
         <Input
           type="text"
           name="name"
+          id="name"
           placeholder="Collection name"
           defaultValue={collection.name}
         />
       </div>
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:gap-2">
-        <Label htmlFor="description" className="flex w-40 items-start sm:pt-2">
+      <div className="mb-3 flex flex-col gap-2">
+        <Label htmlFor="description" className="text-primary">
           Description
         </Label>
         <Textarea
           name="description"
+          id="description"
           placeholder="Description"
           defaultValue={collection.description ?? ""}
         />
       </div>
 
-      <div className="flex flex-col gap-4">
-        <p className="flex items-center text-primary text-sm font-medium">
-          Properties
-        </p>
+      <div className="mb-3 flex flex-col gap-2">
+        <p className="text-primary text-sm font-medium">Properties</p>
 
-        {collection.properties.length > 0 &&
-          collection.properties.map((property, i) => (
-            <div key={property.id} className="flex flex-col gap-2">
+        <div className="flex flex-col gap-4 border p-4 rounded-md">
+          <p className="text-sm text-gray-500">
+            Add, remove or modify property names. These appear as fields for
+            items in the collection, where you can add values for each item.
+          </p>
+
+          {collection.properties.length > 0 &&
+            collection.properties.map((property, i) => (
+              <div key={property.id} className="flex flex-col gap-2">
+                <Label
+                  htmlFor={property.id}
+                  className="flex items-center text-primary"
+                >
+                  {`Property ${i + 1} name`}
+                </Label>
+                <InputGroup>
+                  <InputGroupInput
+                    type="text"
+                    id={property.id}
+                    name={property.id}
+                    placeholder={`Property ${i + 1} name`}
+                    defaultValue={property.name}
+                    className={cx({
+                      "opacity-50": deletedProperties.includes(property.id),
+                    })}
+                    disabled={deletedProperties.includes(property.id)}
+                  />
+                  <InputGroupAddon align="inline-end">
+                    <InputGroupButton
+                      variant="outline"
+                      aria-label="Delete"
+                      title="Delete"
+                      onClick={(event) =>
+                        toggleDeletedProperty(event, property.id)
+                      }
+                      className={cx({
+                        "bg-red-500 text-white hover:bg-green-500 hover:text-white":
+                          deletedProperties.includes(property.id),
+                      })}
+                    >
+                      {deletedProperties.includes(property.id) ? (
+                        <Undo2 />
+                      ) : (
+                        <Trash />
+                      )}
+                    </InputGroupButton>
+                  </InputGroupAddon>
+                </InputGroup>
+              </div>
+            ))}
+
+          {newProperties.map((_, i) => (
+            <div key={i} className="flex flex-col gap-2">
               <Label
-                htmlFor={property.id}
+                htmlFor={`property-${i}`}
                 className="flex items-center text-primary"
               >
-                {`Property ${i + 1} name`}
+                {`Property ${i + collection.properties.length + 1} name`}
               </Label>
-              <InputGroup>
-                <InputGroupInput
-                  type="text"
-                  id={property.id}
-                  name={property.id}
-                  placeholder={`Property ${i + 1} name`}
-                  defaultValue={property.name}
-                  className={cx({
-                    "opacity-50": deletedProperties.includes(property.id),
-                  })}
-                  disabled={deletedProperties.includes(property.id)}
-                />
-                <InputGroupAddon align="inline-end">
-                  <InputGroupButton
-                    variant="outline"
-                    aria-label="Delete"
-                    title="Delete"
-                    onClick={(event) =>
-                      toggleDeletedProperty(event, property.id)
-                    }
-                    className={cx({
-                      "bg-red-500 text-white hover:bg-green-500 hover:text-white":
-                        deletedProperties.includes(property.id),
-                    })}
-                  >
-                    {deletedProperties.includes(property.id) ? (
-                      <Undo2 />
-                    ) : (
-                      <Trash />
-                    )}
-                  </InputGroupButton>
-                </InputGroupAddon>
-              </InputGroup>
+              <Input
+                type="text"
+                id={`property-${i}`}
+                name={`property-${i}`}
+                placeholder={`Property ${i + collection.properties.length + 1} name`}
+                onChange={(event) => {
+                  const newProps = [...newProperties];
+                  newProps[i] = event.target.value;
+                  setNewProperties(newProps);
+                }}
+              />
             </div>
           ))}
 
-        {newProperties.map((_, i) => (
-          <div key={i} className="flex flex-col gap-2">
-            <Label
-              htmlFor={`property-${i}`}
-              className="flex items-center text-primary"
-            >
-              {`Property ${i + collection.properties.length + 1} name`}
-            </Label>
-            <Input
-              type="text"
-              id={`property-${i}`}
-              name={`property-${i}`}
-              placeholder={`Property ${i + collection.properties.length + 1} name`}
-              onChange={(event) => {
-                const newProps = [...newProperties];
-                newProps[i] = event.target.value;
-                setNewProperties(newProps);
-              }}
-            />
-          </div>
-        ))}
-
-        <Button variant="outline" onClick={addNewProperty}>
-          <Plus />
-          Add Property
-        </Button>
+          <Button variant="outline" onClick={addNewProperty}>
+            <Plus />
+            Add Property
+          </Button>
+        </div>
       </div>
 
       <div className="ml-auto flex gap-4">

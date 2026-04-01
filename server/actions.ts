@@ -144,6 +144,26 @@ export async function editCollection(
   return updatedCollection;
 }
 
+export async function deleteCollection(collectionId: string) {
+  if (!collectionId) {
+    throw new Error("Collection ID is required");
+  }
+
+  const user = await currentUser();
+
+  if (!user?.id) {
+    throw new Error("User not authenticated");
+  }
+
+  await db
+    .delete(collection)
+    .where(
+      and(eq(collection.id, collectionId), eq(collection.userId, user.id)),
+    );
+
+  return { id: collectionId };
+}
+
 export async function starCollection(collectionId: string, isStarred: boolean) {
   if (!collectionId) {
     throw new Error("Collection ID is required");

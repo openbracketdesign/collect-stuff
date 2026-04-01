@@ -4,7 +4,7 @@ import { CollectionWithItemsAndImages } from "@/server/schema";
 import { type ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal, Pencil } from "lucide-react";
 import Link from "next/link";
-import { DeleteItemButton } from "../button/DeleteItemButton";
+import { DeleteButton } from "../button/DeleteButton";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -53,8 +53,8 @@ export const buildColumns = (
                 <Pencil className="h-4 w-4 ml-auto" />
               </Link>
             </DropdownMenuItem>
-            <DeleteItemButton
-              item={{ id: item.id, name: item.name }}
+            <DeleteButton
+              thing={{ id: item.id, name: item.name }}
               variant="menuItem"
             />
           </DropdownMenuContent>

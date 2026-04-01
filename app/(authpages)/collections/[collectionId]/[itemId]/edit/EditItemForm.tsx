@@ -123,7 +123,7 @@ export function EditItemForm({
       }
 
       router.replace(`/collections/${updatedItem.collectionId}/${item.id}`);
-    } catch (error) {
+    } catch {
       toast.error("Sorry, we couldn't update the item. Please try again.");
     }
   };
@@ -242,6 +242,7 @@ export function EditItemForm({
           <p className="text-sm text-gray-500">
             Edit the collection to add, remove or modify property names.
           </p>
+
           {selectedCollectionProperties.length > 0 &&
             selectedCollectionProperties.map((property) => (
               <div key={property.id} className="flex flex-col gap-2">

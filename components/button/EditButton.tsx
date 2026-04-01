@@ -17,9 +17,9 @@ export function EditButton({
           : `/collections/${collectionId}/edit`
       }
     >
-      <Button variant='outline' className='group text-primary'>
-        <span className='block md:hidden xl:block'>Edit</span>
-        <Pencil className='transition-transform group-hover:translate-x-[4px] group-hover:rotate-[-10deg]' />
+      <Button variant="outline" className="group text-primary">
+        <span className="block md:hidden xl:block">Edit</span>
+        <Pencil />
       </Button>
     </Link>
   );
