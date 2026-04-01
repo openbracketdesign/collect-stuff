@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Card,
@@ -7,39 +7,38 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import Link from "next/link"
-// import { type CollectionWithItemProperties } from "~/types";
-import { CollectionWithItemsAndImages } from "@/server/schema"
-import Image from "next/image"
-import { StarButton } from "../button/StarButton"
-import { buildColumns } from "./Columns"
-import { DataTable } from "./DataTable"
+} from "@/components/ui/card";
+import { CollectionWithItemsAndImages } from "@/server/schema";
+import Image from "next/image";
+import Link from "next/link";
+import { StarButton } from "../button/StarButton";
+import { buildColumns } from "./Columns";
+import { DataTable } from "./DataTable";
 
 export function CollectionItems({
   collection,
   view,
 }: {
-  collection: CollectionWithItemsAndImages
-  view?: "GRID" | "TABLE"
+  collection: CollectionWithItemsAndImages;
+  view?: "GRID" | "TABLE";
 }) {
   if (view === "TABLE") {
-    const columns = buildColumns(collection)
+    const columns = buildColumns(collection);
 
     const itemProps = collection.items?.map((item) => {
       const fixedProps: Record<string, string> = {
         image: item.images[0]?.url || "",
         name: item.name,
         id: item.id,
-      }
+      };
 
       const props = item.properties.reduce((acc, property) => {
-        acc[property.propertyId] = property.value ?? "--"
-        return acc
-      }, fixedProps)
+        acc[property.propertyId] = property.value ?? "--";
+        return acc;
+      }, fixedProps);
 
-      return props
-    })
+      return props;
+    });
 
     return (
       <DataTable
@@ -47,7 +46,7 @@ export function CollectionItems({
         data={itemProps}
         collectionId={collection.id}
       />
-    )
+    );
   }
 
   // grid
@@ -67,18 +66,18 @@ export function CollectionItems({
                 <Image
                   src={item.images[0].url}
                   alt={item.name}
-                  className="rounded md:w-[80px] h-[80px] w-full"
+                  className="rounded md:w-20 h-20 w-full"
                   style={{ objectFit: "contain" }}
                   height={300}
                   width={300}
                 />
               ) : (
-                <div className="rounded h-[80px] w-full border" />
+                <div className="rounded h-20 w-full border bg-muted" />
               )}
             </CardContent>
 
             <CardHeader className="p-0 gap-y-1 gap-x-4">
-              <CardTitle className="space-grotesk text-base leading-5 group-hover:text-primary">
+              <CardTitle className="text-base leading-5 group-hover:text-primary">
                 {item.name}
               </CardTitle>
 
@@ -99,5 +98,5 @@ export function CollectionItems({
         </Link>
       ))}
     </div>
-  )
+  );
 }

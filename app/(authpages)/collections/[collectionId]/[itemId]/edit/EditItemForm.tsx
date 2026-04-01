@@ -135,11 +135,8 @@ export function EditItemForm({
       action={doEditItem}
       className="flex max-w-[100%] flex-col gap-4 md:max-w-[600px]"
     >
-      <div className="mb-3 flex flex-col gap-2">
-        <Label
-          htmlFor="collectionId"
-          className="flex items-center text-primary"
-        >
+      <div className="mb-2 flex flex-col gap-2 pb-6 border-b">
+        <Label htmlFor="collectionId" className="text-primary">
           Collection
         </Label>
         <input type="hidden" name="collectionId" value={selectedCollectionId} />
@@ -170,8 +167,8 @@ export function EditItemForm({
       </div>
 
       <div className="mb-3 flex flex-col gap-2">
-        <Label htmlFor="name" className="flex items-center text-primary">
-          Name
+        <Label htmlFor="name" className="text-primary">
+          Item name
         </Label>
         <Input
           type="text"
@@ -183,8 +180,8 @@ export function EditItemForm({
       </div>
 
       <div className="mb-3 flex flex-col gap-2">
-        <Label htmlFor="description" className="flex items-center text-primary">
-          Description
+        <Label htmlFor="description" className="text-primary">
+          Item description
         </Label>
         <Textarea
           id="description"
@@ -195,9 +192,7 @@ export function EditItemForm({
       </div>
 
       <div className="mb-3 flex flex-col gap-2">
-        <Label className="flex items-center text-primary">
-          Images (max 10, max 4MB each)
-        </Label>
+        <Label className="text-primary">Images (max 10, max 4MB each)</Label>
 
         <div className="flex flex-col gap-4 w-full">
           <div className="grid grid-cols-2 gap-4">
@@ -239,13 +234,14 @@ export function EditItemForm({
       </div>
 
       <div className="mb-3 flex flex-col gap-2">
-        <p className="flex items-center text-primary text-sm font-medium">
-          Properties
-        </p>
+        <p className="text-primary text-sm font-medium">Item properties</p>
         <div
           key={selectedCollectionId}
           className="flex flex-col gap-4 border p-4 rounded-md"
         >
+          <p className="text-sm text-gray-500">
+            Edit the collection to add, remove or modify property names.
+          </p>
           {selectedCollectionProperties.length > 0 &&
             selectedCollectionProperties.map((property) => (
               <div key={property.id} className="flex flex-col gap-2">
@@ -270,7 +266,7 @@ export function EditItemForm({
 
           {selectedCollectionProperties.length === 0 && (
             <p className="text-sm text-gray-500">
-              This collection doesn't have any properties yet. Edit the
+              This collection doesn&apos;t have any properties yet. Edit the
               collection to add properties, then edit this item to add values.
             </p>
           )}

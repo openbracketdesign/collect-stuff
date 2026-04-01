@@ -6,17 +6,17 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { getMyCollectionsWithItems } from "@/server/query"
-import Image from "next/image"
-import Link from "next/link"
-import { CreateCollectionButton } from "../button/CreateCollectionButton"
-import { StarButton } from "../button/StarButton"
-import { PageTitle } from "../header/PageTitle"
-import PageContent from "../PageContent"
+} from "@/components/ui/card";
+import { getMyCollectionsWithItems } from "@/server/query";
+import Image from "next/image";
+import Link from "next/link";
+import { CreateCollectionButton } from "../button/CreateCollectionButton";
+import { StarButton } from "../button/StarButton";
+import { PageTitle } from "../header/PageTitle";
+import PageContent from "../PageContent";
 
 export const MyCollections = async () => {
-  const collections = await getMyCollectionsWithItems()
+  const collections = await getMyCollectionsWithItems();
 
   if (!collections) {
     return (
@@ -27,7 +27,7 @@ export const MyCollections = async () => {
           <h1>Collections not found</h1>
         </PageContent>
       </>
-    )
+    );
   }
 
   return (
@@ -60,15 +60,15 @@ export const MyCollections = async () => {
                       ) : (
                         <div
                           key={i}
-                          className="h-16 rounded w-full border"
+                          className="h-16 rounded bg-muted w-full border"
                         ></div>
-                      )
+                      ),
                     )}
                   </div>
                 </CardContent>
 
                 <CardHeader className="p-0 gap-x-4">
-                  <CardTitle className="space-grotesk text-xl leading-6 group-hover:text-primary gap-2 flex items-center">
+                  <CardTitle className="text-lg leading-5 group-hover:text-primary gap-2 flex items-center">
                     {`${collection.name.slice(0, 50)}${collection.name.length > 50 ? "..." : ""}`}
                   </CardTitle>
 
@@ -108,5 +108,5 @@ export const MyCollections = async () => {
         </div>
       )}
     </>
-  )
-}
+  );
+};

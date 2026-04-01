@@ -1,7 +1,6 @@
-import { cx } from "class-variance-authority"
-import { type ReactNode } from "react"
-import { Hamburger } from "./Hamburger"
-import { PageTitleContent } from "./PageTitleContent"
+import { type ReactNode } from "react";
+import { Hamburger } from "./Hamburger";
+import { PageTitleContent } from "./PageTitleContent";
 
 export function PageTitle({
   breadcrumbs = [],
@@ -9,20 +8,15 @@ export function PageTitle({
   children: RightContent,
 }: {
   breadcrumbs?: Array<{
-    name: string
-    href: string
-  }>
-  title: string
-  children?: ReactNode
+    name: string;
+    href: string;
+  }>;
+  title: string;
+  children?: ReactNode;
 }) {
   return (
     <>
-      <div
-        className={cx(
-          "top-0 px-6 py-4 text-primary backdrop-blur supports-[backdrop-filter]:bg-background/80 sticky flex items-center border-b",
-          { "md:py-6": breadcrumbs.length === 0 }
-        )}
-      >
+      <div className="top-0 px-6 py-4 text-primary backdrop-blur supports-[backdrop-filter]:bg-background/80 sticky flex items-center border-b">
         <Hamburger />
 
         <PageTitleContent breadcrumbs={breadcrumbs} title={title}>
@@ -34,5 +28,5 @@ export function PageTitle({
         {RightContent}
       </PageTitleContent>
     </>
-  )
+  );
 }

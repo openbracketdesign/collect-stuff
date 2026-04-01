@@ -337,6 +337,24 @@ export async function editItem(
   return updatedItem;
 }
 
+export async function deleteItem(itemId: string) {
+  if (!itemId) {
+    throw new Error("Item ID is required");
+  }
+
+  const user = await currentUser();
+
+  if (!user?.id) {
+    throw new Error("User not authenticated");
+  }
+
+  await db
+    .delete(item)
+    .where(and(eq(item.id, itemId), eq(item.userId, user.id)));
+
+  return { id: itemId };
+}
+
 export async function starItem(itemId: string, isStarred: boolean) {
   if (!itemId) {
     throw new Error("Item ID is required");

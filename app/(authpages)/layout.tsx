@@ -38,9 +38,9 @@ export default async function RootLayout({
           </SidebarCollectionsGroup>
         </SidebarContent>
 
-        <SidebarFooter className="p-4">
+        <SidebarFooter className="p-4 flex items-center justify-center">
           <SignOutButton>
-            <Button variant="outline">
+            <Button variant="outline" className="h-10 w-full">
               Sign out <LogOut />
             </Button>
           </SignOutButton>

@@ -91,34 +91,33 @@ export default async function ItemPage({
             </Carousel>
           )}
 
-          <ul className="space-y-4">
-            <li
-              className={cx("max-w-[70ch] text-lg", {
-                "text-gray-400": !item.description,
-              })}
-            >
-              {item.description ?? "No description"}
-            </li>
+          <p
+            className={cx("max-w-[70ch] text-lg mb-4 pb-4 border-b", {
+              "text-gray-400": !item.description,
+            })}
+          >
+            {item.description ?? "No description"}
+          </p>
 
+          <div className="max-w-[70ch] border rounded-md">
             {item.collection.properties.map((property, i) => (
-              <li key={i}>
-                <span className="mr-2 text-primary">{property.name}</span>{" "}
-                {item.properties.find((p) => p.propertyId === property.id)
-                  ?.value ?? "--"}
-              </li>
+              <div key={i} className="grid grid-cols-2 border-b">
+                <span className="mr-2 text-primary p-3">{property.name}</span>{" "}
+                <span className="border-l p-3">
+                  {item.properties.find((p) => p.propertyId === property.id)
+                    ?.value ?? "--"}
+                </span>
+              </div>
             ))}
 
-            <li>
-              <span className="mr-2 text-primary">Added</span>{" "}
-              {item.date.toDateString()}
-            </li>
-          </ul>
+            <div className="grid grid-cols-2">
+              <span className="mr-2 text-primary p-3">Added</span>{" "}
+              <span className="border-l p-3">{item.date.toDateString()}</span>
+            </div>
+          </div>
         </div>
 
-        <CollectionItemsList
-          collection={item.collection}
-          className="border-t border-dashed py-6 xl:border-l xl:border-t-0 xl:pl-6"
-        />
+        <CollectionItemsList collection={item.collection} />
       </PageContent>
     </>
   );

@@ -1,23 +1,23 @@
-"use server"
+"use server";
 
-import { auth } from "@clerk/nextjs/server"
-import { and, asc, desc, eq, sql } from "drizzle-orm"
+import { auth } from "@clerk/nextjs/server";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 
-import { db } from "./db"
-import { collection, collectionStar, item, itemStar } from "./schema"
+import { db } from "./db";
+import { collection, collectionStar, item, itemStar } from "./schema";
 
 export async function getMyCollectionList(
   orderBy: "date" | "name" = "date",
-  orderDirection: "ASC" | "DESC" = "DESC"
+  orderDirection: "ASC" | "DESC" = "DESC",
 ) {
-  const { userId } = await auth()
+  const { userId } = await auth();
 
   if (!userId) {
-    throw new Error("Not authenticated")
+    throw new Error("Not authenticated");
   }
 
-  const orderColumn = orderBy === "date" ? collection.date : collection.name
-  const orderFn = orderDirection === "ASC" ? asc : desc
+  const orderColumn = orderBy === "date" ? collection.date : collection.name;
+  const orderFn = orderDirection === "ASC" ? asc : desc;
 
   return db.query.collection.findMany({
     where: eq(collection.userId, userId),
@@ -29,21 +29,21 @@ export async function getMyCollectionList(
       },
       properties: true,
     },
-  })
+  });
 }
 
 export async function getMyCollectionsWithItems(
   orderBy: "date" | "name" = "date",
-  orderDirection: "ASC" | "DESC" = "DESC"
+  orderDirection: "ASC" | "DESC" = "DESC",
 ) {
-  const { userId } = await auth()
+  const { userId } = await auth();
 
   if (!userId) {
-    throw new Error("Not authenticated")
+    throw new Error("Not authenticated");
   }
 
-  const orderColumn = orderBy === "date" ? collection.date : collection.name
-  const orderFn = orderDirection === "ASC" ? asc : desc
+  const orderColumn = orderBy === "date" ? collection.date : collection.name;
+  const orderFn = orderDirection === "ASC" ? asc : desc;
 
   return db.query.collection.findMany({
     where: eq(collection.userId, userId),
@@ -65,23 +65,23 @@ export async function getMyCollectionsWithItems(
     extras: {
       itemCount:
         sql<number>`(SELECT COUNT(*) FROM ${item} WHERE "item"."collectionId" = ${collection.id})`.as(
-          "itemCount"
+          "itemCount",
         ),
     },
-  })
+  });
 }
 
 export async function getCollectionsWithItemsByUserId(
   userId: string,
   orderBy: "date" | "name" = "date",
-  orderDirection: "ASC" | "DESC" = "DESC"
+  orderDirection: "ASC" | "DESC" = "DESC",
 ) {
   if (!userId) {
-    throw new Error("No user ID provided")
+    throw new Error("No user ID provided");
   }
 
-  const orderColumn = orderBy === "date" ? collection.date : collection.name
-  const orderFn = orderDirection === "ASC" ? asc : desc
+  const orderColumn = orderBy === "date" ? collection.date : collection.name;
+  const orderFn = orderDirection === "ASC" ? asc : desc;
 
   return db.query.collection.findMany({
     where: eq(collection.userId, userId),
@@ -95,18 +95,18 @@ export async function getCollectionsWithItemsByUserId(
         },
       },
     },
-  })
+  });
 }
 
 export async function getAuthedCollectionById(id: string) {
   if (!id) {
-    throw new Error("No collection ID provided")
+    throw new Error("No collection ID provided");
   }
 
-  const { userId } = await auth()
+  const { userId } = await auth();
 
   if (!userId) {
-    throw new Error("Not authenticated for this collection")
+    throw new Error("Not authenticated for this collection");
   }
 
   return db.query.collection.findFirst({
@@ -114,18 +114,18 @@ export async function getAuthedCollectionById(id: string) {
     with: {
       properties: true,
     },
-  })
+  });
 }
 
 export async function getCollectionById(id: string) {
   if (!id) {
-    throw new Error("No collection ID provided")
+    throw new Error("No collection ID provided");
   }
 
-  const { userId } = await auth()
+  const { userId } = await auth();
 
   if (!userId) {
-    throw new Error("Not authenticated")
+    throw new Error("Not authenticated");
   }
 
   return db.query.collection.findFirst({
@@ -154,18 +154,18 @@ export async function getCollectionById(id: string) {
           }
         : {}),
     },
-  })
+  });
 }
 
 export async function getAuthedItemById(id: string) {
   if (!id) {
-    throw new Error("No item ID provided")
+    throw new Error("No item ID provided");
   }
 
-  const { userId } = await auth()
+  const { userId } = await auth();
 
   if (!userId) {
-    throw new Error("Not authenticated")
+    throw new Error("Not authenticated");
   }
 
   return db.query.item.findFirst({
@@ -175,22 +175,22 @@ export async function getAuthedItemById(id: string) {
       collection: { columns: { name: true }, with: { properties: true } },
       properties: true,
     },
-  })
+  });
 }
 
 export async function getItemWithCollectionAndItemsById(id: string) {
   if (!id) {
-    throw new Error("No item ID provided")
+    throw new Error("No item ID provided");
   }
 
-  const { userId } = await auth()
+  const { userId } = await auth();
 
   return db.query.item.findFirst({
     where: eq(item.id, id),
     with: {
       collection: {
         with: {
-          items: { orderBy: [asc(item.name)] },
+          items: { orderBy: [asc(item.name)], with: { images: { limit: 1 } } },
           properties: true,
         },
       },
@@ -205,5 +205,5 @@ export async function getItemWithCollectionAndItemsById(id: string) {
         : {}),
       properties: true,
     },
-  })
+  });
 }

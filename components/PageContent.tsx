@@ -11,8 +11,7 @@ export default function PageContent({
   return (
     <div
       className={cx("grow p-6", {
-        "grid grid-cols-[1fr] py-0 xl:grid-cols-[1fr_340px] xl:gap-8":
-          sidePanel,
+        "xl:grid py-0 xl:grid-cols-[1fr_340px] xl:gap-8": sidePanel,
       })}
     >
       {children}

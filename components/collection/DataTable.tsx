@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
 import {
   type ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
-} from "@tanstack/react-table"
+} from "@tanstack/react-table";
 
 import {
   Table,
@@ -14,16 +14,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 
-import { cx } from "class-variance-authority"
-import Image from "next/image"
-import Link from "next/link"
+import { cx } from "class-variance-authority";
+import Image from "next/image";
+import Link from "next/link";
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
-  collectionId: string
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+  collectionId: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -35,7 +35,7 @@ export function DataTable<TData, TValue>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-  })
+  });
 
   return (
     <div className="rounded-md border">
@@ -50,7 +50,7 @@ export function DataTable<TData, TValue>({
                     ? null
                     : flexRender(
                         header.column.columnDef.header,
-                        header.getContext()
+                        header.getContext(),
                       )}
                 </TableHead>
               ))}
@@ -69,14 +69,15 @@ export function DataTable<TData, TValue>({
                   <TableCell
                     key={cell.id}
                     className={cx({
-                      "text-primary": cell.column.id === "name",
-                      "w-12": cell.column.id === "image",
+                      "text-primary text-sm font-medium leading-5":
+                        cell.column.id === "name",
+                      "w-10": cell.column.id === "image",
                     })}
                   >
                     {cell.column.id === "image" ? (
                       <Link
                         href={`/collections/${collectionId}/${(cell.row.original as { id: string }).id}`}
-                        className="h-12 w-12 block"
+                        className="h-10 w-10 block"
                       >
                         {cell.getValue() ? (
                           <Image
@@ -94,11 +95,10 @@ export function DataTable<TData, TValue>({
                     ) : cell.column.id === "name" ? (
                       <Link
                         href={`/collections/${collectionId}/${(cell.row.original as { id: string }).id}`}
-                        className="text-base"
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </Link>
                     ) : (
@@ -118,5 +118,5 @@ export function DataTable<TData, TValue>({
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

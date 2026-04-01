@@ -1,3 +1,4 @@
+import { DeleteItemButton } from "@/components/button/DeleteItemButton";
 import { PageTitle } from "@/components/header/PageTitle";
 import PageContent from "@/components/PageContent";
 import { getAuthedItemById, getMyCollectionList } from "@/server/query";
@@ -30,7 +31,9 @@ export default async function EditItemPage({
 
   return (
     <>
-      <PageTitle title="Edit item" breadcrumbs={[]} />
+      <PageTitle title="Edit item" breadcrumbs={[]}>
+        <DeleteItemButton item={item} />
+      </PageTitle>
       <PageContent>
         <EditItemForm item={item} collections={collections} />
       </PageContent>

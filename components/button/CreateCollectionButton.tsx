@@ -6,7 +6,7 @@ export function CreateCollectionButton() {
   return (
     <Link href="/collections/new">
       <Button>
-        Create <Plus />
+        New collection <Plus />
       </Button>
     </Link>
   );
