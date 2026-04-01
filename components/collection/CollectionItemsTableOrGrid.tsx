@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import { CollectionWithItemsAndImages } from "@/server/schema"
-import { cx } from "class-variance-authority"
-import { List, Plus, Table } from "lucide-react"
-import Link from "next/dist/client/link"
-import { useState } from "react"
-import { Button } from "../ui/button"
-import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group"
-import { CollectionItems } from "./CollectionItems"
+import { CollectionWithItemsAndImages } from "@/server/schema";
+import { cx } from "class-variance-authority";
+import { List, Plus, Table } from "lucide-react";
+import Link from "next/dist/client/link";
+import { useState } from "react";
+import { Button } from "../ui/button";
+import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
+import { CollectionItems } from "./CollectionItems";
 
 export function CollectionItemsTableOrGrid({
   collection,
   canAddItems,
 }: {
-  collection: CollectionWithItemsAndImages
-  canAddItems: boolean
+  collection: CollectionWithItemsAndImages;
+  canAddItems: boolean;
 }) {
-  const [isGridView, setIsGridView] = useState(true)
+  const [isGridView, setIsGridView] = useState(false);
 
   return (
     <>
@@ -63,5 +63,5 @@ export function CollectionItemsTableOrGrid({
         view={isGridView ? "GRID" : "TABLE"}
       />
     </>
-  )
+  );
 }

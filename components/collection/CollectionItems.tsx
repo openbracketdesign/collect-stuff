@@ -17,7 +17,7 @@ import { DataTable } from "./DataTable";
 
 export function CollectionItems({
   collection,
-  view,
+  view = "TABLE",
 }: {
   collection: CollectionWithItemsAndImages;
   view?: "GRID" | "TABLE";
