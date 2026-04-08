@@ -139,20 +139,16 @@ export async function getCollectionById(id: string) {
           collection: { columns: { name: true }, with: { properties: true } },
           properties: true,
           stars: {
-            where: eq(collectionStar.userId, userId),
+            where: eq(itemStar.userId, userId),
             limit: 1,
           },
         },
       },
       properties: true,
-      ...(userId
-        ? {
-            stars: {
-              where: eq(collectionStar.userId, userId),
-              limit: 1,
-            },
-          }
-        : {}),
+      stars: {
+        where: eq(collectionStar.userId, userId),
+        limit: 1,
+      },
     },
   });
 }
@@ -190,7 +186,20 @@ export async function getItemWithCollectionAndItemsById(id: string) {
     with: {
       collection: {
         with: {
-          items: { orderBy: [asc(item.name)], with: { images: { limit: 1 } } },
+          items: {
+            orderBy: [asc(item.name)],
+            with: {
+              images: { limit: 1 },
+              ...(userId
+                ? {
+                    stars: {
+                      where: eq(itemStar.userId, userId),
+                      limit: 1,
+                    },
+                  }
+                : {}),
+            },
+          },
           properties: true,
         },
       },

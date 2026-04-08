@@ -163,7 +163,7 @@ export type ItemImage = typeof itemImage.$inferSelect;
 
 /** Matches `with: { items: true }` on collection queries */
 export type CollectionWithItems = Collection & {
-  items: (Item & { images: ItemImage[] })[];
+  items: (Item & { images: ItemImage[]; stars?: { id: string }[] })[];
 };
 export type CollectionWithItemsAndImages = Collection & {
   items: ItemWithImages[];

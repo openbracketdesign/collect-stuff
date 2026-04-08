@@ -47,7 +47,7 @@ export default async function RootLayout({
         </SidebarFooter>
       </Sidebar>
 
-      <main className="flex flex-1 flex-col">
+      <main className="w-full flex flex-1 flex-col">
         {children}
 
         <Footer />

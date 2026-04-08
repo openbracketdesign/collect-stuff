@@ -16,7 +16,7 @@ export function PageTitle({
 }) {
   return (
     <>
-      <div className="top-0 px-6 py-4 text-primary backdrop-blur supports-[backdrop-filter]:bg-background/80 sticky flex items-center border-b">
+      <div className="top-0 px-6 py-4 text-primary backdrop-blur supports-[backdrop-filter]:bg-background/80 sticky flex items-center border-b z-[40]">
         <Hamburger />
 
         <PageTitleContent breadcrumbs={breadcrumbs} title={title}>

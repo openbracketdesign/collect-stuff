@@ -2,6 +2,7 @@
 
 import type { CollectionWithItems } from "@/server/schema";
 import { cx } from "class-variance-authority";
+import { Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -28,24 +29,32 @@ export function CollectionItemsList({
             <TooltipTrigger asChild>
               <Link
                 href={`/collections/${collection.id}/${item.id}`}
-                className={cx(
-                  "h-10 w-10 border bg-muted rounded hover:border hover:border-primary overflow-hidden",
-                  {
-                    "border-primary bg-primary/10":
-                      pathname === `/collections/${collection.id}/${item.id}`,
-                  },
-                )}
+                className="h-10 w-10 relative"
               >
-                {item.images?.[0] ? (
-                  <Image
-                    src={item.images[0].url}
-                    alt=""
-                    width={40}
-                    height={40}
-                    className="w-10 h-10 object-cover object-center"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center"></div>
+                <div
+                  className={cx(
+                    "h-10 w-10 border bg-muted rounded hover:border hover:border-primary overflow-hidden",
+                    {
+                      "border-primary bg-primary/10":
+                        pathname === `/collections/${collection.id}/${item.id}`,
+                    },
+                  )}
+                >
+                  {item.images?.[0] ? (
+                    <Image
+                      src={item.images[0].url}
+                      alt=""
+                      width={40}
+                      height={40}
+                      className="w-10 h-10 object-cover object-center"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center"></div>
+                  )}
+                </div>
+
+                {item.stars && item.stars.length > 0 && (
+                  <Star className="absolute -bottom-2 -right-2 w-5 h-5 fill-amber-500 stroke-none" />
                 )}
               </Link>
             </TooltipTrigger>
